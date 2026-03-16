@@ -1,0 +1,29 @@
+<ion-content class="hearer-top-content">
+  <div class="text-center">
+    <h3>{{pennelinfo.name}}</h3>
+    <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
+    <p *ngIf="option == 'send'">Are you sure you want Complete this project ? </p>
+     <p *ngIf="option == 'send'"><b>Note:-</b> Completing project will not allow you to access this project again.</p>
+
+  <div padding  *ngIf="option == 'send'">
+    <ion-button type="button" fill="solid" expand="full" class="custom-button submit-button" (click)="sendOTP()" >
+      <img src="assets/img/icon5.png" class="mark" alt="your image">  Mark to Complete
+    </ion-button>
+  </div>  
+  <div padding  *ngIf="option == 'view'">
+  <form  #form="ngForm" (ngSubmit)="submitform(form)" class="custom-form"   >
+
+     <p *ngIf="option == 'view'"><b>An</b> OTP (Happy code) has sent to customer phone number.</p>
+     <p *ngIf="option == 'view'">Enter OTP to complete this project</p>
+    <ion-item>
+      <ion-input  [(ngModel)]="otp" [ngModelOptions]="{standalone: true}" type="text" placeholder="Enter OTP"  required></ion-input>
+    </ion-item>
+
+    <ion-button type="submit" fill="solid" expand="full" class="custom-button submit-button" >
+      Submit
+    </ion-button>
+  </form>  
+</div>  
+  </div>
+  
+</ion-content>

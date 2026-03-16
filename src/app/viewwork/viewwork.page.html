@@ -1,0 +1,32 @@
+<ion-content class="hearer-top-content">
+  <div class="text-center">
+    <h3>{{pennelinfo.name}}</h3>
+    <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
+     
+  </div>
+  <div class="list">
+    <ion-row>
+      <ion-col size="12" class="">
+        <ion-list>
+          <ion-item *ngFor="let item of daylist; let i = index">
+            
+            <div class="content">
+              <p class="first" *ngIf="item.information == '' || item.information == null" >Day {{i+1}} <span >N/A </span> </p>
+              <p class="second" *ngIf="item.information != '' && item.information != null" >Day {{i+1}}  </p>
+              <div class="img-content" *ngIf="item.information != '' && item.information != null">
+                <div class="all-image"  *ngFor="let img of item.information | keyvalue;"  >
+                  <ion-slides class="image-slider" loop="true" slidesPerView="2">  
+                  <ion-slide >
+                  <img src="{{imageurl}}{{img.value}}" (click)="viewPhoto(img.value)"> 
+                  </ion-slide>
+                  </ion-slides>
+                </div>
+              </div>
+              
+            </div>
+          </ion-item>
+        </ion-list>  
+      </ion-col>
+    </ion-row>
+  </div>
+</ion-content>

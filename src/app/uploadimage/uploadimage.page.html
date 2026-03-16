@@ -1,0 +1,40 @@
+<ion-content  class="hearer-top-content">
+  <div class="text-center">
+    <h3>{{pennelinfo.name}}</h3>
+    <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
+  </div>
+  <ion-row  justify-content-center class="row-box">
+    <div class="content-box">
+      <ion-col size="12">
+        <p class="heading-text">Upload Image </p>
+    </ion-col>
+    <ion-col size="12">
+      <div class='gallery-image'>
+        <ion-button (click)="captureImage()" class="custom-button">
+          <ion-icon name="camera-outline"></ion-icon> Camera
+       </ion-button>
+      </div>
+      
+    </ion-col>
+    <ion-col size="12">
+      <div class='gallery-image'>
+        <input type="file" accept="image/*" ng2FileSelect [uploader]="fileUploader"  id="fileInput" multiple  (change)="uploadFiles($event)"/>
+         <label for="fileInput"  class="galleryImage">
+            <ion-icon name="images-outline"></ion-icon> Gallery
+         </label>
+      </div>
+    </ion-col>
+    </div>
+    
+  </ion-row>   
+  
+  <ion-row  justify-content-center class="image-box-list">
+    <p style="text-align: center; width: 100%;">Your recent uploaded images..</p>
+    <ion-col size="12">
+      <div  *ngFor="let item of imagelist | keyvalue" class="image-box">
+        <img src="{{pathimg}}{{item.value}}" class="list-image">
+      </div>  
+    </ion-col>
+  </ion-row>
+</ion-content>
+

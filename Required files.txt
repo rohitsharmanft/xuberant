@@ -1,0 +1,20 @@
+app/res/xml/config.xml
+
+<feature name="Geolocation">
+    <param name="android-package" value="org.apache.cordova.GeoBroker" /> 
+</feature>
+
+cordova plugin add cordova-plugin-geolocation
+
+app/AndroidManifest.xml
+
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+
+
+<uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="true" />
+	
+	https://cordova.apache.org/docs/en/2.4.0/cordova/geolocation/geolocation.html#appandroidmanifestxml
+	https://stackoverflow.com/questions/40296249/cordova-android-6-permissions

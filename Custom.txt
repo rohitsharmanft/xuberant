@@ -1,0 +1,26 @@
+Custom Pagination
+https://www.c-sharpcorner.com/article/custom-pagination-component-in-angular-6/
+
+---------------------------------------------------------------------------
+Get Location and address
+https://www.positronx.io/ionic-cordova-geolocation-and-geocoder-tutorial-with-examples/
+---------------------------------------------------------------
+
+SDK Download
+https://androidsdkmanager.azurewebsites.net/Buildtools
+
+-----------------------------------------------------------------------------
+IF we face this issue 
+Installed Build Tools revision 31.0.0 is corrupted. Remove and install again using the SDK Manager
+
+
+ "C:\Users\user\AppData\Local\Android\Sdk\build-tools\31.0.0"
+find a file named d8.bat. This is a Windows batch file.
+
+rename d8.bat to dx.bat.
+
+in the folder lib ("C:\Users\user\AppData\Local\Android\Sdk\build-tools\31.0.0\lib")
+
+rename d8.jar to dx.jar
+
+------------------------------------------------------------------------------

@@ -1,0 +1,41 @@
+<div class="header-content-top text-center border-brown">
+  <h3>{{pennelinfo.name}}</h3>
+  <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
+</div>
+
+<ion-content class="hearer-top-content" >
+  <form  #form="ngForm" (ngSubmit)="submitform(form)" class="custom-form"   >
+    <ion-grid>
+      <ion-row  justify-content-center>
+        <ion-col align-self-center size-md="6" size-lg="5" size-xs="12">
+          <h1>Foundation</h1>
+          <div padding>
+            
+            <div class="item item-input-inset">
+              <label class="item-input">
+                <textarea [(ngModel)]="cost" [ngModelOptions]="{standalone: true}" type="text" placeholder="Total spends on foundation material" class="item-input"  required></textarea>
+              </label>
+            </div>
+            <div class="item item-input-inset">
+              <label class="item-input">
+                <input [(ngModel)]="amount" [ngModelOptions]="{standalone: true}" type="text" placeholder="Amounts given to" class="item-input"  required>
+              </label>
+            </div>
+            <div class="item item-input-inset">
+              <label class="item-input">
+                <textarea [(ngModel)]="explanation" [ngModelOptions]="{standalone: true}" type="text" placeholder="Mobile number of seller on the store" class="item-input"  required></textarea>
+              </label>
+            </div>
+
+            
+          </div>
+          <div padding>
+            <ion-button type="submit" fill="solid" expand="full" class="custom-button-submit" >
+              Submit
+            </ion-button>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
+</ion-content>

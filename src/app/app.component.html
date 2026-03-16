@@ -1,0 +1,36 @@
+<ion-header *ngIf="logininfo != '' && logininfo != null">
+  <ion-toolbar>
+    <ion-title class="header-ttile"> 
+
+      <ion-row>
+        <ion-col size="4" class="header-image-content">
+          <div class="back-button" *ngIf="backoption === true">
+            <p type="button" (click)="myBackButton()" class="button-back"> <ion-icon name="arrow-back-outline"></ion-icon> </p>
+          </div>
+          
+          <div class="comman-header">
+            <img src="assets/img/header.png" alt="your image">
+          </div>
+        </ion-col>
+        <ion-col size="8">
+          <div class="login-profile">
+            <ion-row>
+              <ion-col size="10">
+                <span>Hi '{{this.logininfo.name}}'</span> 
+              </ion-col>
+              <ion-col size="2">
+                <p (click)="logout()" class="logout-app"><ion-icon name="log-out-outline"></ion-icon></p>
+              </ion-col>
+            </ion-row>
+            
+          </div>
+        </ion-col>
+        
+      </ion-row>
+    </ion-title>
+
+  </ion-toolbar>
+</ion-header>
+<ion-app>
+  <ion-router-outlet></ion-router-outlet>
+</ion-app>

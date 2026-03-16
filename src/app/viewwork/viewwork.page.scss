@@ -1,0 +1,65 @@
+.text-center {
+    width: 90%;
+    margin: 0 auto;
+}
+.text-center h3 {
+    text-align: center;
+}
+.calendar-mark img.solar-energy {
+    height: 14px;
+}
+p.calendar-mark{
+    text-align: center;
+    padding: 2px 0;
+    font-size: 14px;
+    margin: 8px 0;
+}
+.calendar-mark span {
+    margin-top: -2px;
+    margin-left: 6px;
+}
+ion-button.custom-button {
+    --background: #5f3128!important;
+    --border-radius: 10px !important;
+    margin-top: 45px;
+}
+.all-image {
+    width: 30%;
+    float: left;
+    margin-left: 1%;
+}
+ion-item.item.md.in-list.ion-focusable.hydrated {
+    --border-color: #fff;
+}
+.content {
+    border: 1px solid #ebebeb;
+    padding: 0px 10px;
+    background: #FFF;
+    box-shadow: 1px 1px 6px 0px #cecece;
+    width: 98%;
+    margin: 0 auto;
+    margin-bottom: 8px;
+}
+
+.content .first {
+    
+    padding: 3px 4px;
+    font-size: 18px;
+    color: #f6874f;
+    margin: 5px 0;
+}
+.content .second {
+    border-bottom: 1px solid #eee;
+    padding: 3px 4px;
+    font-size: 18px;
+    color: #f6874f;
+}
+.content p  span{
+    float: right;
+    color: #000;
+}
+.all-image img {
+    max-width: 100%;
+    border: 1px solid #eee;
+    height: 85px;
+}

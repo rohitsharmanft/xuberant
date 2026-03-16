@@ -1,0 +1,35 @@
+.text-center {
+  width: 90%;
+  margin: 0 auto;
+}
+
+.text-center h3 {
+  text-align: center;
+}
+
+.calendar-mark img.solar-energy {
+  height: 14px;
+}
+
+p.calendar-mark {
+  text-align: center;
+  padding: 2px 0;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.calendar-mark span {
+  margin-top: -2px;
+  margin-left: 6px;
+}
+
+ion-button.custom-button {
+  --background: #5f3128!important;
+  --border-radius: 10px !important;
+  margin-top: 45px;
+}
+
+img.mark {
+  height: 20px;
+  margin-right: 10px;
+}/*# sourceMappingURL=mark.page.css.map */

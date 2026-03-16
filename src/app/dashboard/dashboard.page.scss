@@ -1,0 +1,106 @@
+.content-list{
+    color: #fdfdfd; 
+}
+p.last-login {
+    text-align: center;
+}
+.last-login {
+    text-align: center;
+    padding: 8px 0;
+    font-size: 13px;
+}
+img.lock-image {
+    height: 13px !important;
+}
+.your-project {
+    text-align: center;
+}
+.your-project  .solar-energy img {
+    float: left;
+}
+p.solar-content {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 100;
+    padding: 0;
+    margin: 5px 0;
+}
+p.solar-content span {
+    margin-left: 15px;
+}
+img.solar-energy {
+    height: 35px;
+}
+
+.pannel-list { 
+    border: 1px solid #ebebeb;
+    padding: 10px 10px;
+    background: #FFF;
+    box-shadow: 1px 1px 6px 0px #cecece;
+    width: 98%;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    margin-top: 5px;
+}
+.pannel-list
+{
+  position: relative;
+}
+
+.calendar-content img.solar-energy {
+    height: 14px;
+}
+p.calendar-content {
+    border-bottom: 1.5px solid #6b6b6b;
+    padding: 2px 0;
+    font-size: 14px;
+    margin: 10px 0;
+}
+.calendar-content span {
+    position: absolute;
+    margin-top: -2px;
+    margin-left: 6px;
+}
+
+.calendar-mark img.solar-energy {
+    height: 14px;
+}
+p.calendar-mark{
+    border-bottom: 1px solid #d1d1d1;
+    padding: 2px 0;
+    font-size: 14px;
+    margin: 8px 0;
+}
+.calendar-mark span {
+    margin-top: -2px;
+    margin-left: 6px;
+}
+
+.calendar-gear img.solar-energy {
+    height: 14px;
+}
+p.calendar-gear{
+    padding: 2px 0;
+    font-size: 14px;
+    margin: 8px 0;
+}
+.calendar-gear span {
+    position: absolute;
+    margin-top: -2px;
+    margin-left: 6px;
+}
+ionlabel {
+    font-weight: 600;
+}
+label.status {
+    font-weight: 600;
+}
+ion-item.item.md.in-list.ion-focusable.hydrated.item-label {
+    --border-color: #fff;
+}
+ion-label.item_name {
+    font-weight: 600;
+}
+p.mr-0 {
+    margin: 5px 0;
+}

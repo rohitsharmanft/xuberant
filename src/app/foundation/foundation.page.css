@@ -1,0 +1,58 @@
+.header-content-top {
+  margin-top: 16%;
+}
+
+.text-center h3 {
+  text-align: center;
+}
+
+.calendar-mark img.solar-energy {
+  height: 14px;
+}
+
+p.calendar-mark {
+  padding: 2px 0;
+  font-size: 14px;
+  margin: 8px 0;
+  margin-left: 5%;
+}
+
+.calendar-mark span {
+  margin-top: -2px;
+  margin-left: 6px;
+}
+
+.custom-brown {
+  --background: #5d3229;
+  margin-left: 5%;
+}
+
+.hearer-top-content {
+  --padding-top: 0 !important;
+}
+
+form.custom-form {
+  border: 1px solid #ebebeb;
+  padding: 5px 5px;
+  background: #FFF;
+  box-shadow: 1px 1px 6px 0px #cecece;
+  width: 95%;
+  margin: 0 auto;
+  margin-top: 30px;
+}
+
+input.item-input, textarea.item-input {
+  width: 100%;
+  padding: 11px 15px;
+  border-radius: 7px;
+  border: 0.5px solid #eee;
+  font-size: 14px;
+}
+
+.item.item-input-inset {
+  margin-bottom: 10px;
+}
+
+.custom-button-submit {
+  --background: #5f3128!important;
+}/*# sourceMappingURL=foundation.page.css.map */

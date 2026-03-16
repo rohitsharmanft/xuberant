@@ -1,0 +1,36 @@
+<ion-content class="content-list hearer-top-content">
+  <ion-row>
+    <ion-col size="12" class="">
+      <div class="last-login"><img src="assets/img/lock.png" class="lock-image" alt="your image"> Last Login {{logininfo.last_login}}</div>
+    </ion-col>
+
+    <ion-col size="12" class="">
+      <p class="solar-content"><img src="assets/img/solar-energy.png" class="solar-energy" alt="your image">  <span>Your Projects</span></p>
+    </ion-col>
+  </ion-row>
+  <ion-row>
+    <ion-col size="12" class="">
+      <ion-list>
+        <ion-item *ngFor="let item of pannellist;">
+          <div class="pannel-list" (click)="getinfo(item)">
+            <ion-label class="item_name">{{item.name}} </ion-label>
+            <p class="calendar-content"><img src="assets/img/calendar.png" class="solar-energy" alt="your image">  <span> {{item.ndate}}</span></p>
+
+            <p class="mr-0"><b>Beneficiary:</b> {{item.person_name}} </p>
+            <p class="mr-0"><b>ID:</b> {{item.id}} </p>
+            <div class="dashbpard-info">
+              <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{item.person_address}} </span></p>
+            </div>
+            <div class="dashbpard-info">
+              <p class="calendar-gear"><img src="assets/img/gear.png" class="solar-energy" alt="your image">  <span> Installation Status: <label class="status" *ngIf="item.status == 'A'">Not Yet Started</label>
+                <label class="status" *ngIf="item.status == 'S'">In porcess</label>
+              </span></p>
+            </div>
+            
+          </div>
+        </ion-item>
+      </ion-list>  
+    </ion-col>
+  </ion-row>
+   
+</ion-content>

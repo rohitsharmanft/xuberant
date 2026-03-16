@@ -1,0 +1,60 @@
+<ion-content>
+
+<ion-grid class="grid1">
+
+    <ion-row class="row1">
+        <ion-col>
+			<img src="assets/img/icon.png" alt="your image">
+        </ion-col>
+    </ion-row>
+
+    <ion-row class="row2">
+        <ion-col>
+				
+        </ion-col>
+    </ion-row>
+
+</ion-grid>
+
+<ion-slide  *ngIf="logininfo == '' || logininfo == null">
+    <div class="contaier-login">
+        <ion-grid>
+            <ion-row>
+                <ion-col class="header">
+                    <!--<h3>Xuberant Solutions Pvt. Ltd.</h3>-->
+                    <p>Enter Your Phone Number</p>
+                </ion-col>
+            </ion-row>
+            <form  (ngSubmit)="submitForm()" novalidate>
+            <ion-row>
+                <ion-col>
+                    <ion-list>
+
+                        <ion-item class="mobile_no">
+                            
+                            <ion-input [(ngModel)]="mobile" [ngModelOptions]="{standalone: true}" type="number" required placeholder="Mobile No"  pattern="[0-9]+"></ion-input>
+                        </ion-item>
+                        <br />
+                        
+
+                    </ion-list>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <ion-button type="submit" fill="solid" expand="full" class="custom-button" >
+                        Continue
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </form>
+            <ion-row>
+                <ion-col>
+                    <ion-label>
+                        <!--<h3>¿Olvido la contraseña?</h3>-->
+                    </ion-label>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </div>
+</ion-slide>

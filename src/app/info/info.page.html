@@ -1,0 +1,217 @@
+
+  <div class="header-content-top text-center border-brown">
+    <p class="project_id">Project id: {{pennelinfo.id}}</p>
+    <h3> {{pennelinfo.name}}</h3>
+
+    <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
+  
+    <ion-button class="custom-brown" (click)="nextpage('siteinfo')">Site Info</ion-button>
+  </div>
+
+
+<ion-content class="hearer-top-content" *ngIf="option == 'form'">
+  <form  #form="ngForm" (ngSubmit)="submitform(form)" class="custom-form"   >
+    <ion-grid>
+      <ion-row  justify-content-center>
+        <ion-col align-self-center size-md="6" size-lg="5" size-xs="12">
+          <div class="text-center">
+            <h3>{{pennelinfo.name}}</h3>
+            <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
+          </div>
+          <div padding>
+            <div class="item item-input-inset">
+              <label class="item-input">
+                <input [(ngModel)]="name" [ngModelOptions]="{standalone: true}" type="text" placeholder="Name" class="item-input"  required>
+                <ion-icon name="person-outline" class="left-icon"></ion-icon>
+              </label>
+            </div>
+            
+            <div class="item item-input-inset">
+              <label class="item-input">
+                <input [(ngModel)]="phone" [ngModelOptions]="{standalone: true}" type="number" placeholder="Phone" class="item-input"  required>
+                <ion-icon name="call-outline" class="left-icon"></ion-icon>
+              </label>
+            </div>
+            <div class="item item-input-inset">
+              <label class="item-input">
+                <input [(ngModel)]="altphone" [ngModelOptions]="{standalone: true}" type="number" placeholder="Alt Phone" class="item-input"  required>
+                <ion-icon name="call-outline" class="left-icon"></ion-icon>
+              </label>
+            </div>
+            <div class="item item-input-inset">
+              <label class="item-input">
+                <input [(ngModel)]="email" [ngModelOptions]="{standalone: true}" type="text" placeholder="Email" class="item-input"  required>
+                <ion-icon name="mail-outline" class="left-icon"></ion-icon>
+              </label>
+            </div>
+            <div class="item item-input-inset">
+              <label class="item-input">
+                <textarea [(ngModel)]="address" [ngModelOptions]="{standalone: true}" type="text" placeholder="Address" class="item-input"  required></textarea>
+                <ion-icon name="location-outline" class="left-icon location-icon"></ion-icon>
+              </label>
+            </div>
+
+            <ion-button type="button" fill="solid" expand="full" class="custom-location"  (click)="getCurrentCoordinates()">
+              <ion-icon name="locate-outline"></ion-icon> Get Location
+            </ion-button>
+          </div>
+          <div padding>
+            <ion-button type="submit" fill="solid" expand="full" class="custom-button" >
+              Start Project  <ion-icon name="arrow-forward"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
+</ion-content>
+
+<ion-content class="hearer-top-content"  *ngIf="option == 'view'">
+  
+  <ion-row  justify-content-center class="row-box">
+
+    <div class="total_record"> Step ( {{activePage}}/ {{totalRecords}})</div>
+    
+    <div class="heading" *ngFor="let d of data; let i = index" >
+      <p class="pagination-content" *ngIf="i+1 == activePage"> {{ d.step_title }}</p>
+      
+    </div>
+  <div class="border-bottom-example">
+    <div class="col"></div>
+    <div class="col"></div>
+    <div class="col"></div>
+    <div class="col"></div>
+  </div>
+
+  <div class="full-content">
+    <div class="p-option">
+        <div class="col-md-3" size="6" *ngIf="photo">
+          <div class="view-box" (click)="nextpage('uploadimage')">
+              <img src="assets/img/icon1.png">
+              <p> Upload Image</p>
+          </div>
+        </div>
+
+        <div class="col-md-3" *ngIf="scan">
+          <div class="view-box" (click)="nextpage('scan')">
+            <img src="assets/img/icon3.png">
+            <p> Scan Items</p>
+          </div> 
+        </div>
+
+        <div class="col-md-3" *ngIf="form">
+          <div class="view-box" (click)="nextpage('foundation')">
+            <img src="assets/img/galleryicon.png">
+            <p> Foundation</p>
+          </div> 
+        </div>
+        <div class="col-md-3" *ngIf="mark">
+          <div class="view-box" (click)="nextpage('mark')">
+            <img src="assets/img/icon5.png">
+            <p> Mark to <br>Compelete</p>
+          </div> 
+        </div>
+    </div>
+
+    <div class="list-record">
+      <div class="content-record" *ngFor="let lst of list;" >
+          <div class="row content-view" *ngIf="lst.type == 'image'">
+            <div class="col-md-2"> 
+                <img src="{{imageurl}}{{ lst.content }}" (click)="viewImage(imageurl, lst.content)">
+            </div>
+            <div class="col-md-10"><p><b> {{lst.created_at}}</b> <br> {{lst.latitude}} / {{lst.longitude}}</p></div>
+          </div>
+
+          <div class="row content-view" *ngIf="lst.type == 'scan'">
+            <div class="pannel-list">
+              <table>
+                <tr>
+                  <td>Serial Number</td>
+                  <td>{{lst.content}}</td>
+                </tr>
+                <tr>
+                  <td>Item</td>
+                  <td>{{lst.stockinfo.item}}</td>
+                </tr>
+                <tr>
+                  <td>Scan Date</td>
+                  <td>{{lst.created_at}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="row content-view" *ngIf="lst.type == 'found'">
+            <div class="pannel-list">
+              <table>
+                <tr>
+                  <td>Civil Purchases</td>
+                  <td>{{lst.content.cost}}</td>
+                </tr>
+                <tr>
+                  <td>Amount given to</td>
+                  <td>{{lst.content.amount}}</td>
+                </tr>
+                <tr>
+                  <td>Explanation</td>
+                  <td>{{lst.content.explanation}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+      </div>
+
+    </div>
+
+  </div>
+  
+  <div class="pagination-footer">
+    <nav aria-label="page navigation example">  
+      <ul class="pagination">  
+        <li class="page-item" (click)="onClickPage(activePage - 1)"><a class="page-link" href="javascript:void(0);">&#8592; Back</a></li>  
+        <!--<li class="page-item" [ngClass]="{'active': activePage === item}" *ngFor="let item of pages"  
+          (click)="onClickPage(item)"><a class="page-link" href="javascript:void(0);">{{item}}</a></li>  -->
+        <li class="page-item" (click)="onClickPage(activePage + 1)"><a class="page-link" href="javascript:void(0);">Next &#8594;</a></li>  
+      </ul>  
+    </nav>  
+  </div>
+    
+
+ 
+
+    <!--<ion-col size="6">
+        <div class="view-box" (click)="nextpage('uploadimage')">
+            <img src="assets/img/icon1.png">
+            <p> Upload Image</p>
+        </div>
+      </ion-col>
+      
+      <ion-col size="6" (click)="nextpage('viewwork')">
+        <div class="view-box">
+          <img src="assets/img/icon2.png">
+          <p> View Work <br> In Process</p>
+        </div>
+      </ion-col>
+      <ion-col size="6">
+        <div class="view-box" (click)="nextpage('scan')">
+          <img src="assets/img/icon3.png">
+          <p> Scan Items<br> SR.NO Inventory</p>
+        </div>
+      </ion-col>
+      <ion-col size="6 ">
+        <div class="view-box" (click)="nextpage('siteinfo')">
+          <img src="assets/img/icon4.png">
+          <p> Site Info</p>
+        </div>
+      </ion-col>
+
+      <ion-col size="6">
+        <div class="view-box" (click)="nextpage('mark')">
+          <img src="assets/img/icon5.png">
+          <p> Mark to <br>Compelete</p>
+        </div>
+      </ion-col>-->
+
+  </ion-row>
+</ion-content>
