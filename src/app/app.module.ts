@@ -21,26 +21,20 @@ import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
 
 @NgModule({
   declarations: [AppComponent],
-  entryComponents: [],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule,HttpClientModule],
+  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     ImagePicker,
     PhotoViewer,
     Camera,
     File,
+    BarcodeScanner,
+    AndroidPermissions,
     Geolocation,
+    LocationAccuracy,
     NativeGeocoder,
-    { 
-      provide: RouteReuseStrategy, 
-      useClass: IonicRouteStrategy
-    },
-	BarcodeScanner,
-  AndroidPermissions,
-  Geolocation,
-  LocationAccuracy 
-	],
-	
+  ],
+
   bootstrap: [AppComponent],
 })
 export class AppModule {}
