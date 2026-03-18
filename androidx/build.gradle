@@ -1,0 +1,50 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.13.0'
+        classpath 'com.google.gms:google-services:4.4.4'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+apply from: "variables.gradle"
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        // Ensure the plugin's libs folder is searched for the barcodescanner AAR
+        flatDir {
+            dirs "${project.rootDir}/../node_modules/phonegap-plugin-barcodescanner/src/android/libs"
+        }
+    }
+
+    // Compatibility hack for older Cordova plugins that still use 'compile'
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'compile') {
+                // This part is for dependencies, but the error is about the 'compile' method itself.
+            }
+        }
+    }
+}
+
+// Inject 'compile' method into all projects to support legacy plugins
+subprojects {
+    project.afterEvaluate {
+        dependencies.metaClass.compile = { Object[] args ->
+            delegate.implementation(args)
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
