@@ -4,7 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { Router,ActivatedRoute } from '@angular/router'
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { ToastController } from '@ionic/angular';
-import { ConsoleLogger } from 'node_modules/@angular/compiler-cli/ngcc';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
 

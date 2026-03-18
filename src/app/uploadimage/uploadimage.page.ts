@@ -71,7 +71,7 @@ export class UploadimagePage implements OnInit {
     let files = this.getFiles();
     let formData = new FormData();
     files.forEach((file) => {
-      formData.append('file[]' , file.rawFile, file.name);
+      formData.append('file[]', file.rawFile as any, file.name as any);
     });
     formData.append('id' , this.pennelinfo.id);
     formData.append('latitude' , this.latitude);

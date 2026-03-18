@@ -4,8 +4,6 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { HomePage } from './home.page';
 import { HomePageRoutingModule } from './home-routing.module';
-import { FileUploadModule } from 'ng2-file-upload';
-
 
 @NgModule({
   imports: [
@@ -13,7 +11,6 @@ import { FileUploadModule } from 'ng2-file-upload';
     FormsModule,
     IonicModule,
     HomePageRoutingModule,
-    FileUploadModule,
   ],
   declarations: [HomePage],
 })
