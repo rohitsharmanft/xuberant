@@ -3,7 +3,7 @@ import{ GlobalConstants } from '../common/global-constants';
 import { Router } from '@angular/router'
 import { Platform, AlertController } from '@ionic/angular';
 import { Location } from '@angular/common';
-import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
+import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
 import { LocationAccuracy } from '@ionic-native/location-accuracy/ngx';
 import { Coordinates, Geolocation } from '@ionic-native/geolocation/ngx';
 
