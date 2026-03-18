@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router'
 import{ GlobalConstants } from '../../common/global-constants';
-import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
+import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 
 @Component({
   selector: 'app-viewwork',

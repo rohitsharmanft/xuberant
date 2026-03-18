@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 
+// Compatibility hack for older Cordova plugins that still use 'compile'
+dependencies.metaClass.compile = { Object[] args ->
+    delegate.implementation(args)
+}
+
 android {
     namespace = "app.xuberantsolutions.com"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -25,8 +30,12 @@ android {
 }
 
 repositories {
+    google()
+    mavenCentral()
     flatDir{
-        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+        dirs '../capacitor-cordova-android-plugins/src/main/libs',
+             'libs',
+             '../../node_modules/phonegap-plugin-barcodescanner/src/android/libs'
     }
 }
 

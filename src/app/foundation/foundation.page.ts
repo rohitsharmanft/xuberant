@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastController } from '@ionic/angular';
-import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { Router,ActivatedRoute  } from '@angular/router'
 import{ GlobalConstants } from '../../common/global-constants';
 import { HttpClient,HttpHeaders  } from '@angular/common/http';

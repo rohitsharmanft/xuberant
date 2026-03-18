@@ -4,11 +4,11 @@ import { PhotoService } from  '../services/photo.service';
 import { FileUploader, FileLikeObject } from  'ng2-file-upload';
 import { concat } from  'rxjs';
 import { HttpClient,HttpHeaders  } from '@angular/common/http';
-import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
-import {File} from '@ionic-native/file/ngx';
+import { Camera, CameraOptions } from '@awesome-cordova-plugins/camera/ngx';
+import {File} from '@awesome-cordova-plugins/file/ngx';
 import { ActionSheetController,ToastController,AlertController,LoadingController  } from '@ionic/angular';
 import{ GlobalConstants } from '../../common/global-constants';
-import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { Location } from '@angular/common'
 
 @Component({

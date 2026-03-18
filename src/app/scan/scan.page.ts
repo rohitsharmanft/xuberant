@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
 import{ GlobalConstants } from '../../common/global-constants';
 import { HttpClient } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
-import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { Router,ActivatedRoute  } from '@angular/router'
 
 @Component({

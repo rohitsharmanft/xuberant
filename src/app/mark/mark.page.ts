@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router,ActivatedRoute } from '@angular/router'
 import{ GlobalConstants } from '../../common/global-constants';
 import { ToastController,Platform  } from '@ionic/angular';
-import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { Location } from '@angular/common'
 
 @Component({

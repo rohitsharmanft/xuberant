@@ -2,10 +2,10 @@ import { Component, OnInit,EventEmitter,Input,Output } from '@angular/core';
 import{ GlobalConstants } from '../../common/global-constants';
 import { HttpClient } from '@angular/common/http';
 import { Router,ActivatedRoute } from '@angular/router'
-import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { ToastController } from '@ionic/angular';
-import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
-import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
+import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@awesome-cordova-plugins/native-geocoder/ngx';
+import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 
 @Component({
   selector: 'app-info',
