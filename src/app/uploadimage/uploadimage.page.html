@@ -3,7 +3,7 @@
     <h3>{{pennelinfo.name}}</h3>
     <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
   </div>
-  <ion-row  justify-content-center class="row-box">
+  <ion-row class="ion-justify-content-center row-box">
     <div class="content-box">
       <ion-col size="12">
         <p class="heading-text">Upload Image </p>
@@ -28,7 +28,7 @@
     
   </ion-row>   
   
-  <ion-row  justify-content-center class="image-box-list">
+  <ion-row class="ion-justify-content-center image-box-list">
     <p style="text-align: center; width: 100%;">Your recent uploaded images..</p>
     <ion-col size="12">
       <div  *ngFor="let item of imagelist | keyvalue" class="image-box">

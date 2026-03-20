@@ -16,7 +16,7 @@
 
 </ion-grid>
 
-<ion-slide>
+<div class="login-slide-container">
     <div class="contaier-login">
         <ion-grid>
             <ion-row>
@@ -29,7 +29,7 @@
             <ion-row>
                 <ion-col>
                     <ion-list>
-						<ion-row text-center>
+						<ion-row class="ion-text-center">
 						  <ion-col>
 						   <ion-input type="number" [(ngModel)]="otp.otp1" [ngModelOptions]="{standalone: true}" #otp1 required maxLength="1" (keyup)="otpController($event,otp2,'')">
 						   </ion-input>
@@ -64,4 +64,4 @@
             </ion-row>
         </ion-grid>
     </div>
-</ion-slide>
+</div>
