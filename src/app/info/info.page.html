@@ -12,13 +12,13 @@
 <ion-content class="hearer-top-content" *ngIf="option == 'form'">
   <form  #form="ngForm" (ngSubmit)="submitform(form)" class="custom-form"   >
     <ion-grid>
-      <ion-row  justify-content-center>
-        <ion-col align-self-center size-md="6" size-lg="5" size-xs="12">
+      <ion-row class="ion-justify-content-center">
+        <ion-col class="ion-align-self-center" size-md="6" size-lg="5" size="12">
           <div class="text-center">
             <h3>{{pennelinfo.name}}</h3>
             <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
           </div>
-          <div padding>
+          <div class="ion-padding">
             <div class="item item-input-inset">
               <label class="item-input">
                 <input [(ngModel)]="name" [ngModelOptions]="{standalone: true}" type="text" placeholder="Name" class="item-input"  required>
@@ -55,7 +55,7 @@
               <ion-icon name="locate-outline"></ion-icon> Get Location
             </ion-button>
           </div>
-          <div padding>
+          <div class="ion-padding">
             <ion-button type="submit" fill="solid" expand="full" class="custom-button" >
               Start Project  <ion-icon name="arrow-forward"></ion-icon>
             </ion-button>
@@ -68,7 +68,7 @@
 
 <ion-content class="hearer-top-content"  *ngIf="option == 'view'">
   
-  <ion-row  justify-content-center class="row-box">
+  <ion-row class="ion-justify-content-center row-box">
 
     <div class="total_record"> Step ( {{activePage}}/ {{totalRecords}})</div>
     

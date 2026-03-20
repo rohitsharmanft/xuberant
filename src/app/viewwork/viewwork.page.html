@@ -15,11 +15,9 @@
               <p class="second" *ngIf="item.information != '' && item.information != null" >Day {{i+1}}  </p>
               <div class="img-content" *ngIf="item.information != '' && item.information != null">
                 <div class="all-image"  *ngFor="let img of item.information | keyvalue;"  >
-                  <ion-slides class="image-slider" loop="true" slidesPerView="2">  
-                  <ion-slide >
-                  <img src="{{imageurl}}{{img.value}}" (click)="viewPhoto(img.value)"> 
-                  </ion-slide>
-                  </ion-slides>
+                  <div class="image-slider">
+                  <img src="{{imageurl}}{{img.value}}" (click)="viewPhoto(img.value)">
+                </div>
                 </div>
               </div>
               

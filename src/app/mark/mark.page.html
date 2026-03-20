@@ -5,12 +5,12 @@
     <p *ngIf="option == 'send'">Are you sure you want Complete this project ? </p>
      <p *ngIf="option == 'send'"><b>Note:-</b> Completing project will not allow you to access this project again.</p>
 
-  <div padding  *ngIf="option == 'send'">
+  <div class="ion-padding" *ngIf="option == 'send'">
     <ion-button type="button" fill="solid" expand="full" class="custom-button submit-button" (click)="sendOTP()" >
       <img src="assets/img/icon5.png" class="mark" alt="your image">  Mark to Complete
     </ion-button>
   </div>  
-  <div padding  *ngIf="option == 'view'">
+  <div class="ion-padding" *ngIf="option == 'view'">
   <form  #form="ngForm" (ngSubmit)="submitform(form)" class="custom-form"   >
 
      <p *ngIf="option == 'view'"><b>An</b> OTP (Happy code) has sent to customer phone number.</p>
