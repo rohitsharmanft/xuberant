@@ -10,16 +10,20 @@ import { LoadingController } from '@ionic/angular';
   styleUrls: ['./dashboard.page.scss'],
 })
 export class DashboardPage implements OnInit {
-  
+
   logininfo: any = ''
-  pannellist: any =''
-  constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public loadingController: LoadingController) { 
+  pannellist: any = ''
+  searchTerm: string = ''
+  searchResults: any = ''
+  constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public loadingController: LoadingController) {
     if(localStorage.getItem('authlogin') == '' || localStorage.getItem('authlogin') == null){
 			this.router.navigate(['/home']);
 		}
     this.logininfo = JSON.parse(localStorage.getItem('authlogin'))
-    this.presentLoading() 
-    this.getcontent()
+    if (this.logininfo.type != 2) {
+      this.presentLoading()
+      this.getcontent()
+    }
   }
 
   ngOnInit() {
@@ -27,10 +31,12 @@ export class DashboardPage implements OnInit {
       localStorage.setItem('refreshpage', 'No')
       window.location.reload();
     }
-    
+
   }
   ionViewWillEnter() {
-    this.getcontent()
+    if (this.logininfo.type != 2) {
+      this.getcontent()
+    }
   }
   async getcontent(){
     this.http.get(GlobalConstants.sitelist+''+this.logininfo.id)
@@ -39,6 +45,19 @@ export class DashboardPage implements OnInit {
 		}, error => {
 			console.log(error);
 		});
+  }
+  doSearch(){
+    if (!this.searchTerm) return;
+    let formData = new FormData();
+    formData.append('search', this.searchTerm);
+    formData.append('type', '2');
+    this.presentLoading();
+    this.http.post(GlobalConstants.searchlist, formData)
+      .subscribe((res: any) => {
+        this.searchResults = res.data
+      }, error => {
+        console.log(error);
+      });
   }
   getinfo(itemData:any){
     localStorage.setItem('panel', JSON.stringify(itemData))
