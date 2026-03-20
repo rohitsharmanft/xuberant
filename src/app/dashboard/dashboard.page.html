@@ -1,36 +1,84 @@
 <ion-content class="content-list hearer-top-content">
-  <ion-row>
-    <ion-col size="12" class="">
-      <div class="last-login"><img src="assets/img/lock.png" class="lock-image" alt="your image"> Last Login {{logininfo.last_login}}</div>
-    </ion-col>
 
-    <ion-col size="12" class="">
-      <p class="solar-content"><img src="assets/img/solar-energy.png" class="solar-energy" alt="your image">  <span>Your Projects</span></p>
-    </ion-col>
-  </ion-row>
-  <ion-row>
-    <ion-col size="12" class="">
-      <ion-list>
-        <ion-item *ngFor="let item of pannellist;">
-          <div class="pannel-list" (click)="getinfo(item)">
-            <ion-label class="item_name">{{item.name}} </ion-label>
-            <p class="calendar-content"><img src="assets/img/calendar.png" class="solar-energy" alt="your image">  <span> {{item.ndate}}</span></p>
+  <!-- type=1: existing project list UI (no changes) -->
+  <ng-container *ngIf="logininfo.type != 2">
+    <ion-row>
+      <ion-col size="12" class="">
+        <div class="last-login"><img src="assets/img/lock.png" class="lock-image" alt="your image"> Last Login {{logininfo.last_login}}</div>
+      </ion-col>
 
-            <p class="mr-0"><b>Beneficiary:</b> {{item.person_name}} </p>
-            <p class="mr-0"><b>ID:</b> {{item.id}} </p>
-            <div class="dashbpard-info">
-              <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{item.person_address}} </span></p>
+      <ion-col size="12" class="">
+        <p class="solar-content"><img src="assets/img/solar-energy.png" class="solar-energy" alt="your image">  <span>Your Projects</span></p>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="12" class="">
+        <ion-list>
+          <ion-item *ngFor="let item of pannellist;">
+            <div class="pannel-list" (click)="getinfo(item)">
+              <ion-label class="item_name">{{item.name}} </ion-label>
+              <p class="calendar-content"><img src="assets/img/calendar.png" class="solar-energy" alt="your image">  <span> {{item.ndate}}</span></p>
+
+              <p class="mr-0"><b>Beneficiary:</b> {{item.person_name}} </p>
+              <p class="mr-0"><b>ID:</b> {{item.id}} </p>
+              <div class="dashbpard-info">
+                <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{item.person_address}} </span></p>
+              </div>
+              <div class="dashbpard-info">
+                <p class="calendar-gear"><img src="assets/img/gear.png" class="solar-energy" alt="your image">  <span> Installation Status: <label class="status" *ngIf="item.status == 'A'">Not Yet Started</label>
+                  <label class="status" *ngIf="item.status == 'S'">In porcess</label>
+                </span></p>
+              </div>
+
             </div>
-            <div class="dashbpard-info">
-              <p class="calendar-gear"><img src="assets/img/gear.png" class="solar-energy" alt="your image">  <span> Installation Status: <label class="status" *ngIf="item.status == 'A'">Not Yet Started</label>
-                <label class="status" *ngIf="item.status == 'S'">In porcess</label>
-              </span></p>
+          </ion-item>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ng-container>
+
+  <!-- type=2: search interface -->
+  <ng-container *ngIf="logininfo.type == 2">
+    <ion-row>
+      <ion-col size="12" class="">
+        <div class="last-login"><img src="assets/img/lock.png" class="lock-image" alt="your image"> Last Login {{logininfo.last_login}}</div>
+      </ion-col>
+      <ion-col size="12" class="">
+        <p class="solar-content"><img src="assets/img/solar-energy.png" class="solar-energy" alt="your image">  <span>Search</span></p>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="9">
+        <ion-searchbar [(ngModel)]="searchTerm" placeholder="Enter search term" (keyup.enter)="doSearch()"></ion-searchbar>
+      </ion-col>
+      <ion-col size="3" class="search-btn-col">
+        <ion-button expand="block" (click)="doSearch()">Go</ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="searchResults">
+      <ion-col size="12" class="">
+        <ion-list>
+          <ion-item *ngFor="let item of searchResults;">
+            <div class="pannel-list" (click)="getinfo(item)">
+              <ion-label class="item_name">{{item.name}} </ion-label>
+              <p class="calendar-content"><img src="assets/img/calendar.png" class="solar-energy" alt="your image">  <span> {{item.ndate}}</span></p>
+
+              <p class="mr-0"><b>Beneficiary:</b> {{item.person_name}} </p>
+              <p class="mr-0"><b>ID:</b> {{item.id}} </p>
+              <div class="dashbpard-info">
+                <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{item.person_address}} </span></p>
+              </div>
+              <div class="dashbpard-info">
+                <p class="calendar-gear"><img src="assets/img/gear.png" class="solar-energy" alt="your image">  <span> Installation Status: <label class="status" *ngIf="item.status == 'A'">Not Yet Started</label>
+                  <label class="status" *ngIf="item.status == 'S'">In porcess</label>
+                </span></p>
+              </div>
+
             </div>
-            
-          </div>
-        </ion-item>
-      </ion-list>  
-    </ion-col>
-  </ion-row>
-   
+          </ion-item>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ng-container>
+
 </ion-content>

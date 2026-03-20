@@ -14,6 +14,7 @@ export class GlobalConstants {
     public static sitestep: string = "https://app.xuberantsolutions.com/api/v1/sitestep/";
     public static getstepsite: string = "https://app.xuberantsolutions.com/api/v1/getstepsite/";
     public static foundation: string = "https://app.xuberantsolutions.com/api/v1/foundation";
+    public static searchlist: string = "https://app.xuberantsolutions.com/api/v1/search";
     //sitestep
       //api/v1/getstepsite/
 
