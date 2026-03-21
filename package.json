@@ -39,7 +39,6 @@
     "@capacitor/status-bar": "8.0.1",
     "@ionic/angular": "^8.8.1",
     "@ionic/pwa-elements": "^3.0.2",
-    "cordova-plugin-barcodescanner": "^0.7.4",
     "glightbox": "^3.2.0",
     "moment": "^2.29.1",
     "ng2-file-upload": "^1.4.0",
