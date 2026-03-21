@@ -48,7 +48,7 @@ ion-button.custom-button.submit-button {
 }
 
 ion-button.custom-button {
-  --background: #5f3128!important;
+  --background: #f6874f!important;
 }
 
 .camera-scan {
@@ -123,7 +123,7 @@ ion-item.item.md.in-list.ion-focusable.hydrated {
 }
 
 .back-button {
-  background: #5f3128 !important;
+  background: #f6874f !important;
   padding: 8px 26px;
   color: #fff;
   border-radius: 2px;

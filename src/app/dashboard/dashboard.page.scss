@@ -109,3 +109,302 @@ p.mr-0 {
     align-items: center;
     padding-top: 8px;
 }
+
+/* type=2 search: cream page + brown accents (login palette) */
+ion-content.dashboard-search-mode {
+  --background: #fffaec;
+  color: #f6874f;
+}
+
+.dashboard-search-mode .last-login {
+  color: #f6874f;
+  font-weight: 500;
+}
+
+.dashboard-search-mode .lock-image {
+  filter: brightness(0) saturate(100%) invert(22%) sepia(15%) saturate(1800%) hue-rotate(314deg) brightness(95%);
+}
+
+.dashboard-search-mode p.solar-content {
+  color: #f6874f;
+  font-weight: 600;
+}
+
+.dashboard-search-mode p.solar-content span {
+  font-weight: 700;
+}
+
+/* Search-mode result cards use .project-card (shared styles below) */
+.search-results-row .projects-list {
+  padding: 8px 12px 28px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Pill search bar (integrated input + action) */
+.search-pill-row {
+  padding: 4px 12px 16px;
+}
+
+.search-pill {
+  display: flex;
+  align-items: stretch;
+  max-width: 560px;
+  margin: 0 auto;
+  min-height: 52px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(95, 49, 40, 0.12);
+  border: 1px solid rgba(95, 49, 40, 0.08);
+}
+
+.search-pill-input {
+  flex: 1 1 65%;
+  min-width: 0;
+  padding: 0;
+  height: auto;
+  --min-height: 52px;
+  --background: #ffffff;
+  --box-shadow: none;
+  --border-radius: 0;
+  --color: #f6874f;
+  --placeholder-color: #a8a29a;
+  --icon-color: #b5aea5;
+  --clear-button-color: #8a847a;
+}
+
+.search-pill-btn {
+  flex: 0 0 auto;
+  align-self: stretch;
+  margin: 0;
+  min-width: 108px;
+  min-height: 52px;
+  height: auto;
+  /* Coral action — matches reference pill; page chrome stays login cream/brown */
+  --background: #ff7f74;
+  --background-activated: #e86e64;
+  --background-focused: #e86e64;
+  --color: #ffffff;
+  --box-shadow: none;
+  --border-radius: 0;
+  --padding-start: 20px;
+  --padding-end: 22px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+/* ----- Your Projects (type 1): login-aligned cream + brown ----- */
+ion-content.dashboard-projects-mode {
+  --background: #fffaec;
+  color: #f6874f;
+}
+
+.projects-page {
+  padding: 0 12px 28px;
+  max-width: 560px;
+  margin: 0 auto;
+  margin-top: 60px;
+}
+
+.projects-last-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  margin: 8px 0 0;
+  font-size: 0.8125rem;
+  color: #f6874f;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 999px;
+  border: 1px solid rgba(95, 49, 40, 0.12);
+}
+
+.dashboard-projects-mode .projects-last-login .lock-image {
+  filter: brightness(0) saturate(100%) invert(22%) sepia(15%) saturate(1800%) hue-rotate(314deg) brightness(95%);
+}
+
+.projects-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 4px 8px;
+  justify-content: center;
+}
+
+.projects-heading-icon {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.projects-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f6874f;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+ion-list.projects-list {
+  padding: 0;
+  background: transparent;
+}
+
+ion-item.projects-item {
+  --background: transparent;
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-end: 0;
+  --inner-border-width: 0;
+  --min-height: 0;
+  --ripple-color: rgba(95, 49, 40, 0.08);
+  margin-bottom: 14px;
+}
+
+.project-card {
+  width: 100%;
+  padding: 16px 16px 14px;
+  background: #ebe6e6;
+  border-radius: 14px;
+  border: 1px solid rgba(95, 49, 40, 0.1);
+  box-shadow: 0 4px 18px rgba(95, 49, 40, 0.08);
+  box-sizing: border-box;
+  text-align: left;
+  position: relative;
+  isolation: isolate;
+}
+
+.project-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.project-card__top-left {
+  min-width: 0;
+  flex: 1;
+}
+
+.project-card__badges {
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.project-card__title {
+  margin: 0 0 6px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f1410;
+  line-height: 1.25;
+}
+
+.project-card__id {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #f6874f;
+  opacity: 0.9;
+}
+
+.project-card__badge {
+  display: inline-block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  border-radius: 999px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.project-card__badge--process {
+  color: #c44d1f;
+  background: rgba(255, 140, 90, 0.28);
+  border: 1px solid rgba(230, 120, 70, 0.35);
+}
+
+.project-card__badge--pending {
+  color: #f6874f;
+  background: rgba(95, 49, 40, 0.08);
+  border: 1px solid rgba(95, 49, 40, 0.12);
+}
+
+.project-card__divider {
+  height: 1px;
+  background: #b5aeab;
+  margin: 14px 0 16px;
+}
+
+.project-card__grid {
+  margin-bottom: 10px;
+}
+.project-location-value {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+.project-card__cell {
+  min-width: 0;
+}
+
+.project-card__k {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8a847a;
+  margin-bottom: 8px;
+}
+
+.project-card__v {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1f1410;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.project-card__v--loc {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.project-card__pin {
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.project-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 11px 14px;
+  background: #ffffff;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #535353;
+}
+
+.project-card__cal {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+  opacity: 0.8;
+}

@@ -1,13 +1,13 @@
-<div class="text-center mt">
-  <h3>{{pennelinfo.name}}</h3>
-  <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
-</div>
+
 <ion-content class="hearer-top-content">
-  
+  <div class="text-center scan-step">
+    <h3>{{pennelinfo.name}}</h3>
+    <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
+  </div>
   <div class="text-center-2" *ngIf="option == 'NO'">
     <form  #form="ngForm" (ngSubmit)="submitform(form)" >
       <h1 class="h1-center"> Scan Inventory item</h1>
-      <ion-button type="submit" fill="solid" expand="full" class="custom-button camera-scan" (click)="scan()" >
+      <ion-button type="button" fill="solid" expand="full" class="custom-button camera-scan" (click)="scan()" >
         <ion-icon name="scan-outline" class="scan-outline"></ion-icon> Barcode Scan 
       </ion-button>
       <br>

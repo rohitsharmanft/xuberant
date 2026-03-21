@@ -1,9 +1,9 @@
 <ion-content  class="hearer-top-content">
-  <div class="text-center">
+  <div class="text-center upload-image-step">
     <h3>{{pennelinfo.name}}</h3>
     <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{pennelinfo.person_address}} </span></p>
   </div>
-  <ion-row class="ion-justify-content-center row-box">
+  <ion-row class="ion-justify-content-center row-box ">
     <div class="content-box">
       <ion-col size="12">
         <p class="heading-text">Upload Image </p>
@@ -18,7 +18,7 @@
     </ion-col>
     <ion-col size="12">
       <div class='gallery-image'>
-        <input type="file" accept="image/*" ng2FileSelect [uploader]="fileUploader"  id="fileInput" multiple  (change)="uploadFiles($event)"/>
+        <input type="file" accept="image/*" id="fileInput" multiple (change)="onGalleryChange($event)" />
          <label for="fileInput"  class="galleryImage">
             <ion-icon name="images-outline"></ion-icon> Gallery
          </label>

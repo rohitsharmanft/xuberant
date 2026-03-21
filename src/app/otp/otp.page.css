@@ -44,7 +44,7 @@ ion-slide {
 
 .header h3 {
   text-align: left;
-  color: #5f3128;
+  color: #f6874f;
   font-weight: 900;
 }
 
@@ -52,7 +52,7 @@ ion-slide {
   font-size: 15px;
   text-align: center;
   font-weight: 500;
-  color: #5f3128;
+  color: #f6874f;
 }
 
 ion-item.mobile_no {
@@ -61,7 +61,7 @@ ion-item.mobile_no {
 }
 
 ion-button.custom-button {
-  --background: #5f3128!important;
+  --background: #f6874f!important;
   --border-radius: 10px !important;
 }
 

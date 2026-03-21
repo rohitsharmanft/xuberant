@@ -12,52 +12,56 @@ import { LoadingController } from '@ionic/angular';
 export class DashboardPage implements OnInit {
 
   logininfo: any = ''
-  pannellist: any = ''
+  pannellist: any = []
   searchTerm: string = ''
   searchResults: any = ''
   constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public loadingController: LoadingController) {
     if(localStorage.getItem('authlogin') == '' || localStorage.getItem('authlogin') == null){
 			this.router.navigate(['/home']);
 		}
-    this.logininfo = JSON.parse(localStorage.getItem('authlogin'))
-    if (this.logininfo.type != 2) {
-      this.presentLoading()
-      this.getcontent()
-    }
+   
   }
 
   ngOnInit() {
+    console.log(this.logininfo.type, "type 2");
     if(localStorage.getItem('refreshpage') == 'Yes'){
       localStorage.setItem('refreshpage', 'No')
       window.location.reload();
     }
-
-  }
-  ionViewWillEnter() {
-    if (this.logininfo.type != 2) {
+    this.logininfo = JSON.parse(localStorage.getItem('authlogin'))
+    if (this.logininfo.type == '1') {
       this.getcontent()
     }
   }
-  async getcontent(){
-    this.http.get(GlobalConstants.sitelist+''+this.logininfo.id)
-		.subscribe((res: any) => {
-        this.pannellist = res.data
-		}, error => {
-			console.log(error);
-		});
+  ionViewWillEnter() {
+    this.logininfo = JSON.parse(localStorage.getItem('authlogin'))
+    if (this.logininfo.type == '1') {
+      this.getcontent()
+    }
   }
+  async getcontent() {
+  const url = `${GlobalConstants.sitelist}/${this.logininfo.id}/${this.logininfo.type}/AD123`;
+
+  this.http.get(url)
+    .subscribe((res: any) => {
+      this.pannellist = res.data;
+    }, error => {
+      console.log(error);
+    });
+}
   doSearch(){
     if (!this.searchTerm) return;
+     const url = `${GlobalConstants.sitelist}/${this.logininfo.id}/${this.logininfo.type}/${this.searchTerm}`;
     let formData = new FormData();
-    formData.append('search', this.searchTerm);
-    formData.append('type', '2');
+    // formData.append('search', this.searchTerm);
+    // formData.append('type', '2');
     this.presentLoading();
-    this.http.post(GlobalConstants.searchlist, formData)
-      .subscribe((res: any) => {
-        this.searchResults = res.data
-      }, error => {
-        console.log(error);
-      });
+    this.http.get(url)
+    .subscribe((res: any) => {
+      this.searchResults = res.data;
+    }, error => {
+      console.log(error);
+    });
   }
   getinfo(itemData:any){
     localStorage.setItem('panel', JSON.stringify(itemData))

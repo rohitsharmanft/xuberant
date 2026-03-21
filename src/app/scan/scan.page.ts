@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
 import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { Router,ActivatedRoute  } from '@angular/router'
+import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-scan',
@@ -23,7 +24,7 @@ export class ScanPage implements OnInit {
   scancode: any=''
   getlists: any =''
   activeStep: any
-  constructor(private activatedRoute: ActivatedRoute,private barcodeScanner: BarcodeScanner,public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation) {
+  constructor(private activatedRoute: ActivatedRoute,private barcodeScanner: BarcodeScanner,public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation, private platform: Platform) {
     this.geolocation.getCurrentPosition().then((resp) => {
       this.latitude = resp.coords.latitude;
       this.longitude = resp.coords.longitude;
@@ -46,6 +47,10 @@ export class ScanPage implements OnInit {
     this.getcontent()
   }
   scan() {
+    if (!this.platform.is('cordova') && !this.platform.is('capacitor')) {
+      this.presentToast('Barcode scan works only on installed mobile app.');
+      return;
+    }
     this.selectedProduct = {};
     this.barcodeScanner.scan().then((barcodeData) => {
       if(barcodeData.text != ''){

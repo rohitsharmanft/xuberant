@@ -1,60 +1,63 @@
-<ion-content>
+<ion-content class="home-content" [fullscreen]="true">
 
-<ion-grid class="grid1">
+  <ng-container *ngIf="logininfo == '' || logininfo == null; else loggedInView">
+    <div class="login-screen">
+      <div class="hero-illustration">
+        <img src="/assets/img/icon.png" alt="" />
+      </div>
 
-    <ion-row class="row1">
-        <ion-col>
-			<img src="assets/img/icon.png" alt="your image">
-        </ion-col>
-    </ion-row>
+      <div class="login-panel">
+        <h1 class="login-title">Enter your mobile number</h1>
+        <p class="login-subtext">Please confirm your country code and enter your phone number</p>
 
-    <ion-row class="row2">
-        <ion-col>
-				
-        </ion-col>
-    </ion-row>
+        <form (ngSubmit)="submitForm()" novalidate class="login-form">
+          <div class="inputs-row">
+            <div class="input-col input-col-code">
+              <div class="field-stack">
+                <ion-select
+                  class="field-select"
+                  [(ngModel)]="countryCode"
+                  [ngModelOptions]="{standalone: true}"
+                  interface="action-sheet"
+                  [interfaceOptions]="{ header: 'Country code' }"
+                  aria-label="Country code">
+                  <ion-select-option *ngFor="let c of countryOptions" [value]="c.dial">{{ c.dial }}</ion-select-option>
+                </ion-select>
+                <div class="field-line field-line-muted"></div>
+              </div>
+            </div>
 
-</ion-grid>
+            <div class="input-col input-col-phone">
+              <div class="field-stack field-stack-accent">
+                <span class="field-label title-mobile-number">Mobile number</span>
+                <ion-input
+                  class="field-input"
+                  [(ngModel)]="mobile"
+                  [ngModelOptions]="{standalone: true}"
+                  type="tel"
+                  inputmode="numeric"
+                  maxlength="10"
+                  autocomplete="tel-national"
+                  placeholder=""
+                  aria-label="Mobile number">
+                </ion-input>
+                <div class="field-line field-line-accent"></div>
+              </div>
+            </div>
+          </div>
 
-<div class="login-slide-container" *ngIf="logininfo == '' || logininfo == null">
-    <div class="contaier-login">
-        <ion-grid>
-            <ion-row>
-                <ion-col class="header">
-                    <!--<h3>Xuberant Solutions Pvt. Ltd.</h3>-->
-                    <p>Enter Your Phone Number</p>
-                </ion-col>
-            </ion-row>
-            <form  (ngSubmit)="submitForm()" novalidate>
-            <ion-row>
-                <ion-col>
-                    <ion-list>
-
-                        <ion-item class="mobile_no">
-                            
-                            <ion-input [(ngModel)]="mobile" [ngModelOptions]="{standalone: true}" type="number" required placeholder="Mobile No"  pattern="[0-9]+"></ion-input>
-                        </ion-item>
-                        <br />
-                        
-
-                    </ion-list>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col>
-                    <ion-button type="submit" fill="solid" expand="full" class="custom-button" >
-                        Continue
-                    </ion-button>
-                </ion-col>
-            </ion-row>
+          <ion-button type="submit" expand="block" class="continue-btn">
+            Continue
+          </ion-button>
         </form>
-            <ion-row>
-                <ion-col>
-                    <ion-label>
-                        <!--<h3>¿Olvido la contraseña?</h3>-->
-                    </ion-label>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
+      </div>
     </div>
-</div>
+  </ng-container>
+
+  <ng-template #loggedInView>
+    <div class="logged-in-hero">
+      <img src="/assets/img/icon.png" alt="" />
+    </div>
+  </ng-template>
+
+</ion-content>

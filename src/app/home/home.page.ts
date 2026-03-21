@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { concat } from  'rxjs';
-import { OtpPage } from '../otp/otp.page';
 import { Router } from '@angular/router';
 import { ToastController,LoadingController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
@@ -11,9 +9,12 @@ import{ GlobalConstants } from '../../common/global-constants';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage{
-	mobile:any = '';
-	logininfo: any = ''
+export class HomePage {
+	mobile: any = '';
+	/** UI only; API still receives `mobile` digits only (unchanged). */
+	countryCode = '+91';
+	readonly countryOptions = [{ dial: '+91' }];
+	logininfo: any = '';
 	constructor(private router: Router,public toastController: ToastController,public http: HttpClient,public loadingController: LoadingController){
 		this.logininfo = localStorage.getItem('authlogin') 
 	} 
@@ -21,7 +22,23 @@ export class HomePage{
 		
 	}
 	ionViewWillEnter() {
-	
+		if (GlobalConstants.skipLoginAndOtp) {
+			GlobalConstants.seedDevAuthIfSkipping();
+			const auth = localStorage.getItem('authlogin');
+			if (auth != null && auth !== '') {
+				void this.router.navigate(['/dashboard'], { replaceUrl: true });
+				return;
+			}
+			this.logininfo = '';
+			this.mobile = '';
+			this.countryCode = '+91';
+			return;
+		}
+		this.logininfo = localStorage.getItem('authlogin');
+		if (this.logininfo == null || this.logininfo === '') {
+			this.mobile = '';
+			this.countryCode = '+91';
+		}
 	}
 	submitForm(){
 		if(this.mobile == null || this.mobile == ''){
@@ -34,6 +51,7 @@ export class HomePage{
 		this.http.post(GlobalConstants.apiLogin, formData)
 		.subscribe((data: any) => {
 			if(data.status == 200){
+				GlobalConstants.clearSkipAuthLoggedOutFlag();
 				this.router.navigate(['/otp', { 'phone': this.mobile }]);
 			}else if(data.status == 201){
 				this.presentToast(data.message)

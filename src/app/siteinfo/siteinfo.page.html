@@ -32,33 +32,32 @@
           <ion-col>Title</ion-col>
           <ion-col>Quantity</ion-col>
         </ion-row>
-        <ion-row *ngFor="let installation of pennelinfo.installation_item; index as i">
-          <ion-col>{{installation.title}}</ion-col>
-          <ion-col>{{installation.quantity}}</ion-col>
+        <ion-row *ngFor="let installation of installationItems; index as i">
+          <ion-col>{{ installation.title }}</ion-col>
+          <ion-col>{{ installation.quantity }}</ion-col>
         </ion-row>
       </ion-grid>
     </div>  
 
     <div class="table-grid">
       <h4>Additional Item</h4>
-      <div class="" *ngFor="let civil of pennelinfo.civil_item;">
+      <div *ngFor="let civil of civilItems">
         <ion-grid class="ion-margin cutom-margin">
           <ion-row>
-            <ion-col>{{civil.title}}</ion-col>
+            <ion-col>{{ civil.title }}</ion-col>
           </ion-row>
         </ion-grid>
 
-        <ion-grid class="ion-margin" >
+        <ion-grid class="ion-margin">
           <ion-row>
             <ion-col>Title</ion-col>
             <ion-col>Quantity</ion-col>
           </ion-row>
           <ion-row *ngFor="let content of civil.content; index as i">
-            <ion-col>{{content.title}}</ion-col>
-            <ion-col>{{content.quantity}}</ion-col>
+            <ion-col>{{ content.title }}</ion-col>
+            <ion-col>{{ content.quantity }}</ion-col>
           </ion-row>
         </ion-grid>
-
       </div>
     </div> 
 </div>
@@ -70,23 +69,23 @@
         <table>
           <tr>
             <td>Name:</td>
-            <td>{{this.pennelinfo.siteinfo.name}}</td>
+            <td>{{ pennelinfo?.siteinfo?.name }}</td>
           </tr>
           <tr>
             <td>Address:</td>
-            <td>{{this.pennelinfo.siteinfo.address}}</td>
+            <td>{{ pennelinfo?.siteinfo?.address }}</td>
           </tr>
           <tr>
             <td>Phone:</td>
-            <td>{{this.pennelinfo.siteinfo.phone}}</td>
+            <td>{{ pennelinfo?.siteinfo?.phone }}</td>
           </tr>
           <tr>
             <td>Alternate Ph:</td>
-            <td>{{this.pennelinfo.siteinfo.altphone}}</td>
+            <td>{{ pennelinfo?.siteinfo?.altphone }}</td>
           </tr>
           <tr>
             <td>Email:</td>
-            <td>{{this.pennelinfo.siteinfo.email}}</td>
+            <td>{{ pennelinfo?.siteinfo?.email }}</td>
           </tr>
         </table>
        </div> 

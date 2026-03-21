@@ -2,7 +2,7 @@
     //border-bottom: 2px solid #f6884e;
 }
 .header-content-top {
-    margin-top: 16%;
+    margin-top: 25%;
 }
 .text-center h3 {
     text-align: center;
@@ -25,12 +25,12 @@ p.calendar-mark{
     margin-left: 5%;
 }
 .hearer-top-content {
-    --padding-top: 0 !important;
+    --padding-top: 20px !important;
 }
 form.custom-form {
     border: 1px solid #ebebeb;
     padding: 5px 5px;
-    background: #FFF;
+    background: #ebe6e6;
     box-shadow: 1px 1px 6px 0px #cecece;
     width: 95%;
     margin: 0 auto;
@@ -48,5 +48,5 @@ input.item-input, textarea.item-input {
     margin-bottom: 10px;
 }
 .custom-button-submit {
-    --background: #5f3128!important;
+    --background: #f6874f!important;
 }

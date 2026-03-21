@@ -1,44 +1,66 @@
-<ion-content class="content-list hearer-top-content">
+<ion-content
+  class="content-list hearer-top-content"
+  [ngClass]="{
+    'dashboard-search-mode': logininfo?.type == '2',
+    'dashboard-projects-mode': logininfo?.type == '1'
+  }">
 
-  <!-- type=1: existing project list UI (no changes) -->
-  <ng-container *ngIf="logininfo.type != 2">
-    <ion-row>
-      <ion-col size="12" class="">
-        <div class="last-login"><img src="assets/img/lock.png" class="lock-image" alt="your image"> Last Login {{logininfo.last_login}}</div>
-      </ion-col>
+  <!-- type=1: project list -->
+  <ng-container *ngIf="logininfo.type == '1'">
+    <div class="projects-page">
+      <div class="projects-last-login">
+        <img src="assets/img/lock.png" class="lock-image" alt="" />
+        <span>Last login {{ logininfo.last_login }}</span>
+      </div>
 
-      <ion-col size="12" class="">
-        <p class="solar-content"><img src="assets/img/solar-energy.png" class="solar-energy" alt="your image">  <span>Your Projects</span></p>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size="12" class="">
-        <ion-list>
-          <ion-item *ngFor="let item of pannellist;">
-            <div class="pannel-list" (click)="getinfo(item)">
-              <ion-label class="item_name">{{item.name}} </ion-label>
-              <p class="calendar-content"><img src="assets/img/calendar.png" class="solar-energy" alt="your image">  <span> {{item.ndate}}</span></p>
+      <div class="projects-heading">
+        <img src="assets/img/solar-energy.png" class="projects-heading-icon" alt="" />
+        <h1 class="projects-title">Your Projects</h1>
+      </div>
 
-              <p class="mr-0"><b>Beneficiary:</b> {{item.person_name}} </p>
-              <p class="mr-0"><b>ID:</b> {{item.id}} </p>
-              <div class="dashbpard-info">
-                <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{item.person_address}} </span></p>
+      <ion-list class="projects-list" lines="none">
+        <ion-item *ngFor="let item of pannellist" lines="none" [detail]="false" class="projects-item" [button]="true" (click)="getinfo(item)">
+          <div class="project-card">
+            <div class="project-card__top">
+              <div class="project-card__top-left">
+                <h2 class="project-card__title">{{ item.name }}</h2>
+                <p class="project-card__id">ID: {{ item.id }}</p>
               </div>
-              <div class="dashbpard-info">
-                <p class="calendar-gear"><img src="assets/img/gear.png" class="solar-energy" alt="your image">  <span> Installation Status: <label class="status" *ngIf="item.status == 'A'">Not Yet Started</label>
-                  <label class="status" *ngIf="item.status == 'S'">In porcess</label>
-                </span></p>
+              <div class="project-card__badges">
+                <span class="project-card__badge project-card__badge--process" *ngIf="item.status == 'S'">In process</span>
+                <span class="project-card__badge project-card__badge--pending" *ngIf="item.status == 'A'">Not started</span>
               </div>
-
             </div>
-          </ion-item>
-        </ion-list>
-      </ion-col>
-    </ion-row>
+            <div class="project-card__divider"></div>
+            <div class="project-card__grid">
+              <div class="project-card__cell">
+                <span class="project-card__k">Beneficiary</span>
+                <span class="project-card__v">{{ item.person_name }}</span>
+              </div>
+              
+            </div>
+            <div class="project-card__grid">
+              
+              <div class="project-card__cell">
+                <span class="project-card__k">Location</span>
+                <span class="project-card__v project-card__v--loc project-location-value">
+                  <img src="assets/img/mark.png" class="project-card__pin" alt="" />
+                  {{ item.person_address }}
+                </span>
+              </div>
+            </div>
+            <div class="project-card__footer">
+              <img src="assets/img/calendar.png" class="project-card__cal" alt="" />
+              <span>{{ item.ndate }}</span>
+            </div>
+          </div>
+        </ion-item>
+      </ion-list>
+    </div>
   </ng-container>
 
   <!-- type=2: search interface -->
-  <ng-container *ngIf="logininfo.type == 2">
+  <ng-container *ngIf="logininfo.type == '2'">
     <ion-row>
       <ion-col size="12" class="">
         <div class="last-login"><img src="assets/img/lock.png" class="lock-image" alt="your image"> Last Login {{logininfo.last_login}}</div>
@@ -47,33 +69,54 @@
         <p class="solar-content"><img src="assets/img/solar-energy.png" class="solar-energy" alt="your image">  <span>Search</span></p>
       </ion-col>
     </ion-row>
-    <ion-row>
-      <ion-col size="9">
-        <ion-searchbar [(ngModel)]="searchTerm" placeholder="Enter search term" (keyup.enter)="doSearch()"></ion-searchbar>
-      </ion-col>
-      <ion-col size="3" class="search-btn-col">
-        <ion-button expand="block" (click)="doSearch()">Go</ion-button>
+    <ion-row class="search-pill-row">
+      <ion-col size="12">
+        <div class="search-pill">
+          <ion-searchbar
+            class="search-pill-input"
+            [(ngModel)]="searchTerm"
+            placeholder="Enter search term"
+            [showCancelButton]="'never'"
+            [showClearButton]="'focus'"
+            (keyup.enter)="doSearch()">
+          </ion-searchbar>
+          <ion-button class="search-pill-btn" (click)="doSearch()">Search</ion-button>
+        </div>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="searchResults">
-      <ion-col size="12" class="">
-        <ion-list>
-          <ion-item *ngFor="let item of searchResults;">
-            <div class="pannel-list" (click)="getinfo(item)">
-              <ion-label class="item_name">{{item.name}} </ion-label>
-              <p class="calendar-content"><img src="assets/img/calendar.png" class="solar-energy" alt="your image">  <span> {{item.ndate}}</span></p>
-
-              <p class="mr-0"><b>Beneficiary:</b> {{item.person_name}} </p>
-              <p class="mr-0"><b>ID:</b> {{item.id}} </p>
-              <div class="dashbpard-info">
-                <p class="calendar-mark"><img src="assets/img/mark.png" class="solar-energy" alt="your image">  <span>     Site: {{item.person_address}} </span></p>
+    <ion-row *ngIf="searchResults" class="search-results-row">
+      <ion-col size="12">
+        <ion-list class="projects-list" lines="none">
+          <ion-item *ngFor="let item of searchResults" lines="none" [detail]="false" class="projects-item" [button]="true" (click)="getinfo(item)">
+            <div class="project-card">
+              <div class="project-card__top">
+                <div class="project-card__top-left">
+                  <h2 class="project-card__title">{{ item.name }}</h2>
+                  <p class="project-card__id">ID: {{ item.id }}</p>
+                </div>
+                <div class="project-card__badges">
+                  <span class="project-card__badge project-card__badge--process" *ngIf="item.status == 'S'">In process</span>
+                  <span class="project-card__badge project-card__badge--pending" *ngIf="item.status == 'A'">Not started</span>
+                </div>
               </div>
-              <div class="dashbpard-info">
-                <p class="calendar-gear"><img src="assets/img/gear.png" class="solar-energy" alt="your image">  <span> Installation Status: <label class="status" *ngIf="item.status == 'A'">Not Yet Started</label>
-                  <label class="status" *ngIf="item.status == 'S'">In porcess</label>
-                </span></p>
+              <div class="project-card__divider"></div>
+              <div class="project-card__grid">
+                <div class="project-card__cell">
+                  <span class="project-card__k">Beneficiary</span>
+                  <span class="project-card__v">{{ item.person_name }}</span>
+                </div>
+                <div class="project-card__cell">
+                  <span class="project-card__k">Location</span>
+                  <span class="project-card__v project-card__v--loc">
+                    <img src="assets/img/mark.png" class="project-card__pin" alt="" />
+                    {{ item.person_address }}
+                  </span>
+                </div>
               </div>
-
+              <div class="project-card__footer">
+                <img src="assets/img/calendar.png" class="project-card__cal" alt="" />
+                <span>{{ item.ndate }}</span>
+              </div>
             </div>
           </ion-item>
         </ion-list>

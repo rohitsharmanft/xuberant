@@ -1,15 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { Router,ActivatedRoute  } from '@angular/router'
 import { PhotoService } from  '../services/photo.service';
-import { FileUploader, FileLikeObject } from  'ng2-file-upload';
-import { concat } from  'rxjs';
-import { HttpClient,HttpHeaders  } from '@angular/common/http';
-import { Camera, CameraOptions } from '@awesome-cordova-plugins/camera/ngx';
-import {File} from '@awesome-cordova-plugins/file/ngx';
+import { HttpClient } from '@angular/common/http';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { ActionSheetController,ToastController,AlertController,LoadingController  } from '@ionic/angular';
 import{ GlobalConstants } from '../../common/global-constants';
 import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
-import { Location } from '@angular/common'
+import { LocationPermissionService } from '../services/location-permission.service';
 
 @Component({
   selector: 'app-uploadimage',
@@ -26,76 +23,124 @@ export class UploadimagePage implements OnInit {
    clickedImage: string;
    imagelist: any = []
    pathimg = GlobalConstants.pathimg
-  options: CameraOptions = {
-    quality: 30,
-    destinationType: this.camera.DestinationType.DATA_URL,
-    encodingType: this.camera.EncodingType.JPEG,
-    mediaType: this.camera.MediaType.PICTURE
-  }
   activeStep: any
-  public fileUploader: FileUploader = new FileUploader({});
-  
-  constructor(private router: Router, private activatedRoute: ActivatedRoute, private photoService: PhotoService,private camera: Camera, private http: HttpClient, private file: File,public actionSheetController: ActionSheetController,public toastController: ToastController,public alertController: AlertController,public loadingController: LoadingController,private geolocation: Geolocation,private location: Location) {
-    this.geolocation.getCurrentPosition().then((resp) => {
-      this.latitude = resp.coords.latitude;
-      this.longitude = resp.coords.longitude;
-     }).catch((error) => {
-       console.log('Error getting location', error);
-     });
-   }
+
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private photoService: PhotoService,
+    private http: HttpClient,
+    public actionSheetController: ActionSheetController,
+    public toastController: ToastController,
+    public alertController: AlertController,
+    public loadingController: LoadingController,
+    private geolocation: Geolocation,
+    private ngZone: NgZone,
+    private locationPermission: LocationPermissionService,
+  ) {}
 
   ngOnInit() {
-    if(localStorage.getItem('authlogin') == '' || localStorage.getItem('authlogin') == null){
-			this.router.navigate(['/home']);
-		}
-    this.pennelinfo = JSON.parse(localStorage.getItem('panel'))
+    if (localStorage.getItem('authlogin') == '' || localStorage.getItem('authlogin') == null) {
+      this.router.navigate(['/home']);
+    }
+    this.pennelinfo = JSON.parse(localStorage.getItem('panel'));
 
-    this.activatedRoute.queryParams
-      .subscribe(params => {
-        console.log(params.activeid); 
-        this.activeStep = params.activeid
+    this.activatedRoute.queryParams.subscribe((params) => {
+      console.log(params.activeid);
+      this.activeStep = params.activeid;
+    });
+
+    void this.refreshCoords();
+  }
+
+  /**
+   * Cordova geolocation only works on native builds with the plugin; browser / ionic serve needs navigator.geolocation.
+   */
+  private async refreshCoords(): Promise<void> {
+    try {
+      const resp = await this.geolocation.getCurrentPosition();
+      this.latitude = resp.coords.latitude;
+      this.longitude = resp.coords.longitude;
+      return;
+    } catch (e) {
+      console.log('Cordova geolocation not available or denied, trying browser API', e);
+    }
+    await this.browserGeolocation();
+  }
+
+  private browserGeolocation(): Promise<void> {
+    return new Promise((resolve) => {
+      if (typeof navigator === 'undefined' || !navigator.geolocation) {
+        resolve();
+        return;
       }
-    );
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.ngZone.run(() => {
+            this.latitude = pos.coords.latitude;
+            this.longitude = pos.coords.longitude;
+          });
+          resolve();
+        },
+        (err) => {
+          console.log('Browser geolocation error', err);
+          resolve();
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 },
+      );
+    });
   }
  
 
-  getFiles(): FileLikeObject[] {
-    return this.fileUploader.queue.map((fileItem) => {
-      return fileItem.file;
-
-    });
+  async onGalleryChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const picked = input.files;
+    if (!picked?.length) {
+      return;
+    }
+    const list = Array.from(picked);
+    input.value = '';
+    await this.uploadGalleryFiles(list);
   }
 
-  uploadFiles() {
-    this.showLoading()
-    let files = this.getFiles();
-    let formData = new FormData();
-    files.forEach((file) => {
-      formData.append('file[]', file.rawFile as any, file.name as any);
-    });
-    formData.append('id' , this.pennelinfo.id);
-    formData.append('latitude' , this.latitude);
-    formData.append('longitude' , this.longitude); //
-    formData.append('step_id' , this.activeStep); 
-    this.http.post(GlobalConstants.multipleimages, formData)
-		.subscribe((data: any) => {
-			if(data.status == '200'){
-        this.loadingController.dismiss();
-        //this.showAlert()
-        let image_list = data.data;
-        for(let i=0; i<image_list.length; i++){
-          this.imagelist.push(image_list[i])
+  private async uploadGalleryFiles(files: File[]) {
+    if (!files.length) {
+      return;
+    }
+    const allowed = await this.locationPermission.ensureLocationAllowed({ showRationale: true });
+    if (!allowed) {
+      await this.presentToast('Location permission is needed to tag your photos.');
+      return;
+    }
+    await this.refreshCoords();
+    await this.showLoading();
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append('file[]', file, file.name);
+    }
+    formData.append('id', String(this.pennelinfo.id));
+    formData.append('latitude', String(this.latitude));
+    formData.append('longitude', String(this.longitude));
+    formData.append('step_id', String(this.activeStep ?? ''));
+    this.http.post(GlobalConstants.multipleimages, formData).subscribe({
+      next: (data: any) => {
+        if (data.status == '200') {
+          this.loadingController.dismiss();
+          const image_list = data.data;
+          for (let i = 0; i < image_list.length; i++) {
+            this.imagelist.push(image_list[i]);
+          }
+        } else {
+          this.loadingController.dismiss();
+          this.presentToast('Image not upload please try agian later');
         }
-        this.fileUploader.queue = []
-			}else{
+      },
+      error: (err) => {
+        console.log(err);
         this.loadingController.dismiss();
-				this.presentToast('Image not upload please try agian later')
-			}
-		}, error => {
-			console.log(error);
-		});
-
-    
+        this.presentToast('Upload failed');
+      },
+    });
   }
   
   async presentToast($msg) {
@@ -111,48 +156,63 @@ export class UploadimagePage implements OnInit {
       buttons: [
         {
           text: 'Yes!',
-          handler: () => {
-            this.fileUploader.queue = []
-          }
+          handler: () => {}
         }
       ]
     }).then(res => {
       res.present();
     });
   }
- captureImage() {
-
-    this.camera.getPicture(this.options).then((imageData) => {
-      this.showLoading()
-      let base64Image = 'data:image/jpeg;base64,' + imageData;
-      let formData = new FormData();
-      formData.append('image' , base64Image);
-      formData.append('id' , this.pennelinfo.id);
-      formData.append('latitude' , this.latitude);
-      formData.append('longitude' , this.longitude);
-      formData.append('step_id' , this.activeStep); 
-      this.http.post(GlobalConstants.base64imageupload, formData)
-		  .subscribe((data: any) => {
-        if(data.status == '200'){
-          this.loadingController.dismiss();
-          //this.showAlert()
-          let image_list = data.data;
-          for(let i=0; i<image_list.length; i++){
-            this.imagelist.push(image_list[i])
-          }
-
-        }else{
-          this.loadingController.dismiss();
-          this.presentToast('Image not upload please try agian later')
-        }
-      }, error => {
-        console.log(error);
+  async captureImage() {
+    try {
+      const allowed = await this.locationPermission.ensureLocationAllowed({ showRationale: true });
+      if (!allowed) {
+        await this.presentToast('Location permission is needed to tag your photos.');
+        return;
+      }
+      const image = await Camera.getPhoto({
+        quality: 30,
+        allowEditing: false,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Camera,
       });
-
-    }, (err) => {
+      const raw = image.base64String;
+      if (!raw) {
+        await this.presentToast('No image captured');
+        return;
+      }
+      await this.refreshCoords();
+      await this.showLoading();
+      const base64Image = `data:image/jpeg;base64,${raw}`;
+      const formData = new FormData();
+      formData.append('image', base64Image);
+      formData.append('id', this.pennelinfo.id);
+      formData.append('latitude', this.latitude);
+      formData.append('longitude', this.longitude);
+      formData.append('step_id', this.activeStep);
+      this.http.post(GlobalConstants.base64imageupload, formData).subscribe({
+        next: (data: any) => {
+          if (data.status == '200') {
+            this.loadingController.dismiss();
+            const image_list = data.data;
+            for (let i = 0; i < image_list.length; i++) {
+              this.imagelist.push(image_list[i]);
+            }
+          } else {
+            this.loadingController.dismiss();
+            this.presentToast('Image not upload please try agian later');
+          }
+        },
+        error: (err) => {
+          console.log(err);
+          this.loadingController.dismiss();
+          this.presentToast('Upload failed');
+        },
+      });
+    } catch (err) {
       console.log(err);
-      // Handle error
-    });
+      await this.presentToast('Camera cancelled or unavailable');
+    }
   }
 
   async showLoading(){

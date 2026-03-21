@@ -25,6 +25,8 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-.hearer-top-content{
-	--padding-top: 60px !important;
+/* Space below the app header (not the header itself). Login/OTP use .home-content / .otp-page — excluded. */
+.hearer-top-content,
+ion-app ion-router-outlet ion-content.info-page {
+	--padding-top: 20px !important;
 }

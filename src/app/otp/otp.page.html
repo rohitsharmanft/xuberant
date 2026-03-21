@@ -1,67 +1,65 @@
-<ion-content>
-
-<ion-grid class="grid1">
-
-    <ion-row class="row1">
-        <ion-col>
-			<img src="assets/img/icon.png" alt="your image">
-        </ion-col>
-    </ion-row>
-
-    <ion-row class="row2">
-        <ion-col>
-				
-        </ion-col>
-    </ion-row>
-
-</ion-grid>
-
-<div class="login-slide-container">
-    <div class="contaier-login">
-        <ion-grid>
-            <ion-row>
-                <ion-col class="header">
-                    <p>OTP has been sent your Mobile no</p>
-                    <p>{{phone}}</p>
-                </ion-col>
-            </ion-row>
-            <form  (ngSubmit)="submitForm()" novalidate>
-            <ion-row>
-                <ion-col>
-                    <ion-list>
-						<ion-row class="ion-text-center">
-						  <ion-col>
-						   <ion-input type="number" [(ngModel)]="otp.otp1" [ngModelOptions]="{standalone: true}" #otp1 required maxLength="1" (keyup)="otpController($event,otp2,'')">
-						   </ion-input>
-						   <ion-input type="number" [(ngModel)]="otp.otp2" [ngModelOptions]="{standalone: true}" #otp2 required maxLength="1" (keyup)="otpController($event,otp3,otp1)">
-						   </ion-input>
-						   <ion-input type="number" [(ngModel)]="otp.otp3" [ngModelOptions]="{standalone: true}" #otp3 required maxLength="1" (keyup)="otpController($event,otp4,otp2)">
-						   </ion-input>
-						   <ion-input type="number" [(ngModel)]="otp.otp4" [ngModelOptions]="{standalone: true}" #otp4  required maxLength="1" (keyup)="otpController($event,'',otp3)">
-						   </ion-input>
-						  </ion-col>
-						</ion-row>
-                        <br />
-                        
-
-                    </ion-list>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col>
-                    <ion-button type="submit" fill="solid" expand="full" class="custom-button">
-                        Submit
-                    </ion-button>
-                </ion-col>
-            </ion-row>
-            </form>
-            <ion-row>
-                <ion-col>
-                    <ion-label>
-                        <!--<h3>¿Olvido la contraseña?</h3>-->
-                    </ion-label>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
+<ion-content class="otp-page" [fullscreen]="true">
+  <div class="otp-screen">
+    <div class="otp-hero">
+      <img src="/assets/img/icon.png" alt="" />
     </div>
-</div>
+
+    <div class="otp-panel">
+      <p class="otp-message">OTP has been sent to your mobile number</p>
+      <p class="otp-phone">{{ phone }}</p>
+
+      <form (ngSubmit)="submitForm()" novalidate class="otp-form">
+        <div class="otp-digits" role="group" aria-label="One-time password digits">
+          <ion-input
+            #otp1
+            class="otp-digit"
+            type="tel"
+            inputmode="numeric"
+            maxlength="1"
+            [(ngModel)]="otp.otp1"
+            [ngModelOptions]="{standalone: true}"
+            (keyup)="otpController($event, otp2, '')"
+            aria-label="First digit">
+          </ion-input>
+          <ion-input
+            #otp2
+            class="otp-digit"
+            type="tel"
+            inputmode="numeric"
+            maxlength="1"
+            [(ngModel)]="otp.otp2"
+            [ngModelOptions]="{standalone: true}"
+            (keyup)="otpController($event, otp3, otp1)"
+            aria-label="Second digit">
+          </ion-input>
+          <ion-input
+            #otp3
+            class="otp-digit"
+            type="tel"
+            inputmode="numeric"
+            maxlength="1"
+            [(ngModel)]="otp.otp3"
+            [ngModelOptions]="{standalone: true}"
+            (keyup)="otpController($event, otp4, otp2)"
+            aria-label="Third digit">
+          </ion-input>
+          <ion-input
+            #otp4
+            class="otp-digit"
+            type="tel"
+            inputmode="numeric"
+            maxlength="1"
+            [(ngModel)]="otp.otp4"
+            [ngModelOptions]="{standalone: true}"
+            (keyup)="otpController($event, '', otp3)"
+            aria-label="Fourth digit">
+          </ion-input>
+        </div>
+
+        <ion-button type="submit" expand="block" class="otp-submit">
+          Submit
+        </ion-button>
+      </form>
+    </div>
+  </div>
+</ion-content>

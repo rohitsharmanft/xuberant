@@ -25,7 +25,7 @@ p.calendar-mark{
 }
 .scan-outline{
     margin-right: 10px;
-    color: #ff5722;
+    color: #fff;
 }
 .tc {
     text-align: center;
@@ -39,7 +39,7 @@ ion-button.custom-button.submit-button {
     padding: 0 30px;
 }
 ion-button.custom-button {
-    --background: #5f3128!important;
+    --background: #f6874f!important;
 }
 .camera-scan {
     margin: 0 50px;
@@ -92,7 +92,7 @@ td:first-child {
 .text-center-2 {
     border: 1px solid #ebebeb;
     padding: 10px 10px;
-    background: #FFF;
+    background: #ebe6e6;
     box-shadow: 1px 1px 6px 0px #cecece;
     width: 90%;
     margin: 0 auto;
@@ -103,7 +103,7 @@ ion-item {
     --inner-border-width: 0;
 }
 .back-button {
-    background: #5f3128!important;
+    background: #f6874f!important;
     padding: 8px 26px;
     color: #fff;
     border-radius: 2px;
@@ -115,5 +115,8 @@ table {
     margin-top: 15%;
   } 
   .hearer-top-content {
-    --padding-top: 5px !important;
+    --padding-top: 20px !important;
+}
+.text-center.scan-step {
+    margin-top: 25%;
 }

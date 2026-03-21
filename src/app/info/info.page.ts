@@ -47,7 +47,7 @@ export class InfoPage implements OnInit {
     maxResults: 5
   };
   constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation,private nativeGeocoder: NativeGeocoder,private photoViewer: PhotoViewer) {
-      this.getCurrentCoordinates()
+    /* Do not request geolocation on construct — it can steal the first tap/gesture (Site info etc.). Use “Get location” instead. */
    }
 
   ngOnInit() {
@@ -114,8 +114,17 @@ export class InfoPage implements OnInit {
 		});
 		toast.present();
 	}
-  nextpage(next:any){
-    this.router.navigate(['/'+next],{queryParams: {activeid: this.sendstep }});
+  nextpage(next: string) {
+    const route = next.startsWith('/') ? next.slice(1) : next;
+    /* Site info only needs panel data in localStorage — avoid queryParams until sendstep exists (was causing flaky first navigation). */
+    if (route === 'siteinfo') {
+      void this.router.navigate(['/siteinfo']);
+      return;
+    }
+    const activeid = this.sendstep ?? this.data?.[0]?.step_id;
+    void this.router.navigate(['/' + route], {
+      queryParams: activeid != null && activeid !== '' ? { activeid } : {},
+    });
   }
 
   async getcontent(){
@@ -135,6 +144,17 @@ export class InfoPage implements OnInit {
           this.activeStep = (currentValue.permission).split(',')
         }
       });
+      /* No step marked in progress yet — still need a step id for API calls */
+      if ((this.sendstep == null || this.sendstep === '') && this.data?.length) {
+        this.sendstep = this.data[0].step_id;
+      }
+      if ((!this.activeStep || this.activeStep.length === 0) && this.data?.length) {
+        this.activePage = 1;
+        this.activeStep = String(this.data[0].permission ?? '')
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+      }
       //console.log(this.activeStep);
       this.getPagecontent(siteid,this.sendstep)
       this.permissionStep()

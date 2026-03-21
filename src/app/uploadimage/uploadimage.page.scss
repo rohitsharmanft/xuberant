@@ -52,7 +52,7 @@ label.galleryImage {
     font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    background: #5f3128;
+    background: #f6874f;
     padding: 9px 57px;
     color: #fff;
 }
@@ -70,12 +70,12 @@ p.heading-text {
     width: 206px;
 }
 ion-button.custom-button {
-    --background: #5f3128!important;
+    --background: #f6874f!important;
     --border-radius: 5px !important;
 }
 ion-icon {
     margin-right: 10px;
-    color: #ff5722;
+    color: #fff;
 }
 .content-box {
     margin: 0 auto;
@@ -100,4 +100,7 @@ img.list-image {
     float: left;
     margin-left: 10px;
     margin-bottom: 10px;
+}
+.text-center.upload-image-step {
+    margin-top: 25%;
 }

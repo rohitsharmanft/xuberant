@@ -9,7 +9,6 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { HttpClientModule } from '@angular/common/http';
-import { Camera } from '@awesome-cordova-plugins/camera/ngx';
 import { File } from '@awesome-cordova-plugins/file/ngx';
 // geolocation and native-geocoder
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
@@ -26,7 +25,6 @@ import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     ImagePicker,
     PhotoViewer,
-    Camera,
     File,
     BarcodeScanner,
     AndroidPermissions,

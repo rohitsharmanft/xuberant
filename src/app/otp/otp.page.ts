@@ -14,26 +14,33 @@ export class OtpPage implements OnInit {
 	phone:any =''
 	otp:any = {};
     constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient, public toastController: ToastController,public loadingController: LoadingController  ) { 
-	this.phone = this.activatedRoute.snapshot.paramMap.get('phone')
-	if (this.phone.indexOf('91') > -1){
-		this.phone = "+"+this.phone
+	this.phone = this.activatedRoute.snapshot.paramMap.get('phone') ?? '';
+	if (this.phone && String(this.phone).indexOf('91') > -1) {
+		this.phone = '+' + this.phone;
 	}
   }
 
   ngOnInit() {
-	
+    if (GlobalConstants.skipLoginAndOtp) {
+      const p = this.phone != null ? String(this.phone).trim() : '';
+      // Real login sends a phone into this route — do not hijack with dev bypass.
+      if (!p) {
+        GlobalConstants.seedDevAuthIfSkipping();
+        void this.router.navigate(['/dashboard'], { replaceUrl: true });
+      }
+    }
   }
   
-   otpController(event,next,prev){
-	   if(event.target.value.length < 1 && prev){
-		 prev.setFocus()
+   otpController(event: Event, next: { setFocus: () => Promise<void> } | '' | null, prev: { setFocus: () => Promise<void> } | '' | null) {
+	   const path = typeof (event as any).composedPath === 'function' ? (event as any).composedPath() as EventTarget[] : [];
+	   const native = path.find((el): el is HTMLInputElement => el instanceof HTMLInputElement);
+	   const t = native ?? (event.target as HTMLInputElement | null);
+	   const len = t?.value?.length ?? 0;
+	   if (len < 1 && prev && typeof (prev as { setFocus?: () => Promise<void> }).setFocus === 'function') {
+		 void (prev as { setFocus: () => Promise<void> }).setFocus();
+	   } else if (next && typeof (next as { setFocus?: () => Promise<void> }).setFocus === 'function' && len > 0) {
+		 void (next as { setFocus: () => Promise<void> }).setFocus();
 	   }
-	   else if(next && event.target.value.length>0){
-		 next.setFocus();
-	   }
-	   else {
-		return 0;
-	   } 
    }
    submitForm(){
 		let mobileotp = this.otp.otp1+''+this.otp.otp2+''+this.otp.otp3+''+this.otp.otp4
@@ -44,6 +51,7 @@ export class OtpPage implements OnInit {
 		this.http.post(GlobalConstants.otpverify, formData)
 		.subscribe((data: any) => {
 			if(data.status == 200){
+				GlobalConstants.clearSkipAuthLoggedOutFlag();
 				localStorage.setItem('authlogin', JSON.stringify(data.data))
 				localStorage.setItem('refreshpage', 'Yes')
 				this.router.navigate(['/dashboard']);

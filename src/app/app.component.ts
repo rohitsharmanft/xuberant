@@ -3,10 +3,7 @@ import{ GlobalConstants } from '../common/global-constants';
 import { Router } from '@angular/router'
 import { Platform, AlertController } from '@ionic/angular';
 import { Location } from '@angular/common';
-import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
-import { LocationAccuracy } from '@awesome-cordova-plugins/location-accuracy/ngx';
-import { Coordinates, Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
-
+import { LocationPermissionService } from './services/location-permission.service';
 
 @Component({
   selector: 'app-root',
@@ -18,10 +15,13 @@ export class AppComponent {
   backoption: any = ''
   locationCoords: any
   timetest: any
-  constructor(private router: Router,private platform: Platform,public alertController: AlertController,
-    private _location: Location,private androidPermissions: AndroidPermissions,
-    private geolocation: Geolocation,
-    private locationAccuracy: LocationAccuracy    ) {
+  constructor(
+    private router: Router,
+    private platform: Platform,
+    public alertController: AlertController,
+    private _location: Location,
+    private locationPermission: LocationPermissionService,
+  ) {
     this.initializeApp();
     
 
@@ -34,9 +34,11 @@ export class AppComponent {
     this.timetest = Date.now();
   }
   ngOnInit() {
-    setInterval(()=> {
-      this.logininfo = JSON.parse(localStorage.getItem('authlogin'))
-    }, 1000); 
+    GlobalConstants.seedDevAuthIfSkipping();
+    this.syncLoginInfoFromStorage();
+    setInterval(() => {
+      this.syncLoginInfoFromStorage();
+    }, 1000);
     setInterval(()=> {
 	  if (this._location.isCurrentPathEqualTo('/home')) {
 		if(localStorage.getItem('authlogin') != '' && localStorage.getItem('authlogin') != null){
@@ -49,10 +51,8 @@ export class AppComponent {
       }else{
         this.backoption = true
       }
-    }, 100); 
-    this.requestGPSPermission()
-    this.askToTurnOnGPS()
-    
+    }, 100);
+    void this.platform.ready().then(() => this.locationPermission.promptOnLaunchIfNeeded());
   }
   logout() {
 
@@ -137,52 +137,18 @@ export class AppComponent {
     this._location.back();
   }
 
-  requestGPSPermission() {
-    this.locationAccuracy.canRequest().then((canRequest: boolean) => {
-      if (canRequest) {
-        console.log("4");
-      } else {
-        //Show 'GPS Permission Request' dialogue
-        this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.ACCESS_COARSE_LOCATION)
-          .then(
-            () => {
-              // call method to turn on GPS
-              this.askToTurnOnGPS();
-            },
-            error => {
-              //Show alert if user click on 'No Thanks'
-              alert('requestPermission Error requesting location permissions ' + error)
-            }
-          );
-      }
-    });
-  }
-  askToTurnOnGPS() {
-      
-    this.locationAccuracy.canRequest().then((canRequest: boolean) => {
-      if (canRequest) {
-        this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
-          () => {
-        
-          },
-          error => alert('Error requesting location permissions ' + JSON.stringify(error))
-        );
-      } else {
-        //Show 'GPS Permission Request' dialogue
-        this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.ACCESS_COARSE_LOCATION)
-          .then(
-            () => {
-              // call method to turn on GPS
-              this.askToTurnOnGPS();
-            },
-            error => {
-              //Show alert if user click on 'No Thanks'
-              alert('requestPermission Error requesting location permissions ' + error)
-            }
-          );
-      }
-    });
+  /** Keep header in sync with storage; safe when auth key is missing after logout. */
+  private syncLoginInfoFromStorage(): void {
+    const raw = localStorage.getItem('authlogin');
+    if (raw == null || raw === '') {
+      this.logininfo = null;
+      return;
+    }
+    try {
+      this.logininfo = JSON.parse(raw);
+    } catch {
+      this.logininfo = null;
+    }
   }
 
- 
 }
