@@ -21,14 +21,6 @@ export class OtpPage implements OnInit {
   }
 
   ngOnInit() {
-    if (GlobalConstants.skipLoginAndOtp) {
-      const p = this.phone != null ? String(this.phone).trim() : '';
-      // Real login sends a phone into this route — do not hijack with dev bypass.
-      if (!p) {
-        GlobalConstants.seedDevAuthIfSkipping();
-        void this.router.navigate(['/dashboard'], { replaceUrl: true });
-      }
-    }
   }
   
    otpController(event: Event, next: { setFocus: () => Promise<void> } | '' | null, prev: { setFocus: () => Promise<void> } | '' | null) {
@@ -51,7 +43,6 @@ export class OtpPage implements OnInit {
 		this.http.post(GlobalConstants.otpverify, formData)
 		.subscribe((data: any) => {
 			if(data.status == 200){
-				GlobalConstants.clearSkipAuthLoggedOutFlag();
 				localStorage.setItem('authlogin', JSON.stringify(data.data))
 				localStorage.setItem('refreshpage', 'Yes')
 				this.router.navigate(['/dashboard']);

@@ -1,8 +1,5 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { GlobalConstants } from '../common/global-constants';
-
-const defaultEntry = GlobalConstants.skipLoginAndOtp ? 'dashboard' : 'home';
 
 const routes: Routes = [
   {
@@ -11,7 +8,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: defaultEntry,
+    redirectTo: 'home',
     pathMatch: 'full'
   },
   {

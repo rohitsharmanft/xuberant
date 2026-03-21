@@ -22,18 +22,6 @@ export class HomePage {
 		
 	}
 	ionViewWillEnter() {
-		if (GlobalConstants.skipLoginAndOtp) {
-			GlobalConstants.seedDevAuthIfSkipping();
-			const auth = localStorage.getItem('authlogin');
-			if (auth != null && auth !== '') {
-				void this.router.navigate(['/dashboard'], { replaceUrl: true });
-				return;
-			}
-			this.logininfo = '';
-			this.mobile = '';
-			this.countryCode = '+91';
-			return;
-		}
 		this.logininfo = localStorage.getItem('authlogin');
 		if (this.logininfo == null || this.logininfo === '') {
 			this.mobile = '';
@@ -51,7 +39,6 @@ export class HomePage {
 		this.http.post(GlobalConstants.apiLogin, formData)
 		.subscribe((data: any) => {
 			if(data.status == 200){
-				GlobalConstants.clearSkipAuthLoggedOutFlag();
 				this.router.navigate(['/otp', { 'phone': this.mobile }]);
 			}else if(data.status == 201){
 				this.presentToast(data.message)

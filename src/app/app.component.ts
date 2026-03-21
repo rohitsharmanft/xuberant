@@ -34,7 +34,6 @@ export class AppComponent {
     this.timetest = Date.now();
   }
   ngOnInit() {
-    GlobalConstants.seedDevAuthIfSkipping();
     this.syncLoginInfoFromStorage();
     setInterval(() => {
       this.syncLoginInfoFromStorage();
