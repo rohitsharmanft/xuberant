@@ -141,7 +141,10 @@ export class LocationPermissionService {
       return true;
     }
     // Some Android/Capacitor builds still report false from checkPermission after the user allowed access.
-    return this.verifyRelaxedPosition() || this.verifyCurrentPosition();
+    if (await this.verifyRelaxedPosition()) {
+      return true;
+    }
+    return this.verifyCurrentPosition();
   }
 
   private async requestHighAccuracyIfPossible(): Promise<void> {

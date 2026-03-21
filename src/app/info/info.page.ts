@@ -6,6 +6,7 @@ import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { ToastController } from '@ionic/angular';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@awesome-cordova-plugins/native-geocoder/ngx';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
+import { LocationPermissionService } from '../services/location-permission.service';
 
 @Component({
   selector: 'app-info',
@@ -46,7 +47,7 @@ export class InfoPage implements OnInit {
     useLocale: true,
     maxResults: 5
   };
-  constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation,private nativeGeocoder: NativeGeocoder,private photoViewer: PhotoViewer) {
+  constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation,private nativeGeocoder: NativeGeocoder,private photoViewer: PhotoViewer, private locationPermission: LocationPermissionService) {
     /* Do not request geolocation on construct — it can steal the first tap/gesture (Site info etc.). Use “Get location” instead. */
    }
 
@@ -217,7 +218,12 @@ export class InfoPage implements OnInit {
   }  
   // Pagination code
 
-  getCurrentCoordinates() {
+  async getCurrentCoordinates() {
+    const allowed = await this.locationPermission.ensureLocationAllowed({ showRationale: true });
+    if (!allowed) {
+      await this.presentToast('Location permission is required to fetch coordinates.');
+      return;
+    }
     this.geolocation.getCurrentPosition().then((resp) => {
       this.latitude = resp.coords.latitude;
       this.longitude = resp.coords.longitude;
@@ -228,17 +234,18 @@ export class InfoPage implements OnInit {
       
      }).catch((error) => {
        console.log('Error getting location', error);
+       this.presentToast('Unable to get current location. Please enable GPS and try again.');
      });
   }
   getAddress(lat,long){
-    this.address = 'test';
-    return false;
     this.nativeGeocoder.reverseGeocode(lat, long, this.nativeGeocoderOptions)
     .then((res: NativeGeocoderResult[]) => {
-      this.address = this.pretifyAddress(res[0]);
+      if (res && res.length > 0) {
+        this.address = this.pretifyAddress(res[0]);
+      }
     })
     .catch((error: any) => {
-      alert('Error getting location'+ JSON.stringify(error));
+      console.log('Error getting address', error);
     });
   }
 
@@ -253,7 +260,7 @@ export class InfoPage implements OnInit {
       if(obj[val].length)
       data += obj[val]+', ';
     }
-    return address.slice(0, -2);
+    return data.slice(0, -2);
   }
 
   async getPagecontent(siteid,stepid){

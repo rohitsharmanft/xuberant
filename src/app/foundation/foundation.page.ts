@@ -61,6 +61,7 @@ export class FoundationPage implements OnInit {
         this.cost = ''
         this.amount = ''
         this.explanation = ''
+        this.presentToast('Form submitted successfully')
 			}else if(data.status == 201){
 				this.presentToast(data.message)
 			}else if(data.status == 202){

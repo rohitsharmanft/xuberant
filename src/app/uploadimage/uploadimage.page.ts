@@ -112,8 +112,9 @@ export class UploadimagePage implements OnInit {
       await this.presentToast('Location permission is needed to tag your photos.');
       return;
     }
-    await this.refreshCoords();
     await this.showLoading();
+    await this.refreshCoords();
+    
     const formData = new FormData();
     for (const file of files) {
       formData.append('file[]', file, file.name);
@@ -170,6 +171,7 @@ export class UploadimagePage implements OnInit {
         await this.presentToast('Location permission is needed to tag your photos.');
         return;
       }
+      await this.showLoading();
       const image = await Camera.getPhoto({
         quality: 30,
         allowEditing: false,
@@ -182,7 +184,7 @@ export class UploadimagePage implements OnInit {
         return;
       }
       await this.refreshCoords();
-      await this.showLoading();
+      
       const base64Image = `data:image/jpeg;base64,${raw}`;
       const formData = new FormData();
       formData.append('image', base64Image);
