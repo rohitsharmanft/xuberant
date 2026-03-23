@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
+import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
 import{ GlobalConstants } from '../../common/global-constants';
 import { HttpClient } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
@@ -24,7 +24,7 @@ export class ScanPage implements OnInit {
   scancode: any=''
   getlists: any =''
   activeStep: any
-  constructor(private activatedRoute: ActivatedRoute,private barcodeScanner: BarcodeScanner,public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation, private platform: Platform) {
+  constructor(private activatedRoute: ActivatedRoute,public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation, private platform: Platform) {
     this.geolocation.getCurrentPosition().then((resp) => {
       this.latitude = resp.coords.latitude;
       this.longitude = resp.coords.longitude;
@@ -46,24 +46,26 @@ export class ScanPage implements OnInit {
     );
     this.getcontent()
   }
-  scan() {
+  async scan() {
     if (!this.platform.is('cordova') && !this.platform.is('capacitor')) {
       this.presentToast('Barcode scan works only on installed mobile app.');
       return;
     }
     this.selectedProduct = {};
-    this.barcodeScanner.scan().then((barcodeData) => {
-      if(barcodeData.text != ''){
+    try {
+      const { barcodes } = await BarcodeScanner.scan({ autoZoom: true });
+      const scannedValue = barcodes?.[0]?.rawValue || barcodes?.[0]?.displayValue || '';
+      if(scannedValue != ''){
         let formData = new FormData();
         formData.append('id' ,this.pennelinfo.id);
-        formData.append('serialcode' , barcodeData.text);
+        formData.append('serialcode' , scannedValue);
         formData.append('latitude' , this.latitude);
         formData.append('longitude' , this.longitude);
         formData.append('step_id' , this.activeStep); 
         this.http.post(GlobalConstants.serialnumberverify, formData)
       .subscribe((data: any) => {
         if(data.status == 200){
-          this.scancode =  barcodeData.text
+          this.scancode =  scannedValue
           this.option = 'YES'
           this.getcontent()
         }else if(data.status == 201){
@@ -77,9 +79,10 @@ export class ScanPage implements OnInit {
       }else{
         this.presentToast('Failed try again');
       }
-    }, (err) => {
+    } catch (err) {
       console.log(err)
-    });
+      this.presentToast('Failed try again');
+    }
   }
   submitform(){
     let formData = new FormData();

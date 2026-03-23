@@ -219,35 +219,79 @@ export class InfoPage implements OnInit {
   // Pagination code
 
   async getCurrentCoordinates() {
-    const allowed = await this.locationPermission.ensureLocationAllowed({ showRationale: true });
-    if (!allowed) {
-      await this.presentToast('Location permission is required to fetch coordinates.');
-      return;
-    }
-    this.geolocation.getCurrentPosition().then((resp) => {
-      this.latitude = resp.coords.latitude;
-      this.longitude = resp.coords.longitude;
-      //if(this.option == 'form') {
-        // Get Address
-        this.getAddress(this.latitude, this.longitude);
-      //}
-      
-     }).catch((error) => {
-       console.log('Error getting location', error);
-       this.presentToast('Unable to get current location. Please enable GPS and try again.');
-     });
+  const allowed = await this.locationPermission.ensureLocationAllowed({ showRationale: true });
+
+  if (!allowed) {
+    await this.presentToast('Location permission is required to fetch coordinates.');
+    return;
   }
-  getAddress(lat,long){
-    this.nativeGeocoder.reverseGeocode(lat, long, this.nativeGeocoderOptions)
-    .then((res: NativeGeocoderResult[]) => {
-      if (res && res.length > 0) {
-        this.address = this.pretifyAddress(res[0]);
-      }
-    })
-    .catch((error: any) => {
-      console.log('Error getting address', error);
+
+  try {
+    const resp = await this.geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
     });
+
+    this.latitude = resp.coords.latitude;
+    this.longitude = resp.coords.longitude;
+
+    console.log('Coordinates:', this.latitude, this.longitude);
+
+    await this.getAddress(this.latitude, this.longitude);
+  } catch (error) {
+    console.log('Error getting location', error);
+    await this.presentToast('Unable to get current location. Please enable GPS and try again.');
   }
+}
+
+async getAddress(lat: number, long: number) {
+  if (!Number.isFinite(lat) || !Number.isFinite(long)) {
+    console.log('Invalid coordinates:', lat, long);
+    await this.presentToast('Invalid coordinates received.');
+    return;
+  }
+
+  try {
+    const options = this.nativeGeocoderOptions || {
+      useLocale: true,
+      maxResults: 1
+    };
+
+    const res: NativeGeocoderResult[] = await this.nativeGeocoder.reverseGeocode(lat, long, options);
+
+    console.log('Geocoder response:', res);
+
+    if (res && res.length > 0) {
+      this.address = this.pretifyAddress(res[0]);
+      console.log('Resolved address:', this.address);
+    } else {
+      this.address = '';
+      await this.presentToast('Coordinates found, but no address was returned.');
+    }
+  } catch (error: any) {
+    console.log('Error getting address', error);
+
+    const msg =
+      typeof error === 'string'
+        ? error
+        : error?.message || JSON.stringify(error);
+
+    if (msg.includes('Geocoder is not present on this device/emulator')) {
+      await this.presentToast('Address lookup is not available on this emulator/device. Please test on a real device or a Google Play emulator.');
+    } else if (
+      msg.toLowerCase().includes('grpc failed') ||
+      msg.toLowerCase().includes('service not available') ||
+      msg.toLowerCase().includes('no internet')
+    ) {
+      await this.presentToast('Address lookup failed. Please check internet connection and Google services.');
+    } else if (msg.includes('Cannot get an address')) {
+      await this.presentToast('Location found, but no readable address is available for these coordinates.');
+    } else {
+      await this.presentToast('Unable to get address from current location.');
+    }
+  }
+}
 
   pretifyAddress(address){
     let obj = [];

@@ -408,3 +408,6 @@ ion-item.projects-item {
   flex-shrink: 0;
   opacity: 0.8;
 }
+.search-pill-input .searchbar-input-container input {
+    padding-inline-end: 1rem !important;
+}

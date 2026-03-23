@@ -15,7 +15,6 @@ import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions
 import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { LocationAccuracy } from '@awesome-cordova-plugins/location-accuracy/ngx';
 import { NativeGeocoder } from '@awesome-cordova-plugins/native-geocoder/ngx';
-import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 
 @NgModule({
@@ -26,7 +25,6 @@ import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
     ImagePicker,
     PhotoViewer,
     File,
-    BarcodeScanner,
     AndroidPermissions,
     Geolocation,
     LocationAccuracy,
