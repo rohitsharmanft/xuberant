@@ -58,6 +58,7 @@ export class MarkPage implements OnInit {
 		.subscribe((data: any) => {
 			if(data.status == 200){
         this.option = 'view'
+        
         this.submitform()
 			}
 		}, error => {
@@ -79,6 +80,7 @@ export class MarkPage implements OnInit {
 		this.http.post(GlobalConstants.marktocomplete, formData)
 		.subscribe((data: any) => {
 			if(data.status == 200){
+        this.presentToast('site work is completed successfully')
         localStorage.setItem('back', 'Yes')
         window.location.href ='/dashboard';
 			}else if(data.status == 201){
