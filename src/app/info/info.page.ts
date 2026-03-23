@@ -1,12 +1,13 @@
 import { Component, OnInit,EventEmitter,Input,Output } from '@angular/core';
 import{ GlobalConstants } from '../../common/global-constants';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router,ActivatedRoute } from '@angular/router'
 import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
-import { ToastController } from '@ionic/angular';
+import { LoadingController, ToastController } from '@ionic/angular';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@awesome-cordova-plugins/native-geocoder/ngx';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { LocationPermissionService } from '../services/location-permission.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-info',
@@ -47,7 +48,7 @@ export class InfoPage implements OnInit {
     useLocale: true,
     maxResults: 5
   };
-  constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation,private nativeGeocoder: NativeGeocoder,private photoViewer: PhotoViewer, private locationPermission: LocationPermissionService) {
+  constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public toastController: ToastController, private loadingController: LoadingController,private geolocation: Geolocation,private nativeGeocoder: NativeGeocoder,private photoViewer: PhotoViewer, private locationPermission: LocationPermissionService) {
     /* Do not request geolocation on construct — it can steal the first tap/gesture (Site info etc.). Use “Get location” instead. */
    }
 
@@ -219,14 +220,21 @@ export class InfoPage implements OnInit {
   // Pagination code
 
   async getCurrentCoordinates() {
-  const allowed = await this.locationPermission.ensureLocationAllowed({ showRationale: true });
-
-  if (!allowed) {
-    await this.presentToast('Location permission is required to fetch coordinates.');
-    return;
-  }
+  const loader = await this.loadingController.create({
+    message: 'Getting current location...',
+    spinner: 'crescent',
+    backdropDismiss: false,
+  });
+  await loader.present();
 
   try {
+    const allowed = await this.locationPermission.ensureLocationAllowed({ showRationale: true });
+
+    if (!allowed) {
+      await this.presentToast('Location permission is required to fetch coordinates.');
+      return;
+    }
+
     const resp = await this.geolocation.getCurrentPosition({
       enableHighAccuracy: true,
       timeout: 15000,
@@ -242,6 +250,8 @@ export class InfoPage implements OnInit {
   } catch (error) {
     console.log('Error getting location', error);
     await this.presentToast('Unable to get current location. Please enable GPS and try again.');
+  } finally {
+    await loader.dismiss();
   }
 }
 
@@ -266,6 +276,11 @@ async getAddress(lat: number, long: number) {
       this.address = this.pretifyAddress(res[0]);
       console.log('Resolved address:', this.address);
     } else {
+      const fallbackAddress = await this.getAddressFromHttpFallback(lat, long);
+      if (fallbackAddress) {
+        this.address = fallbackAddress;
+        return;
+      }
       this.address = '';
       await this.presentToast('Coordinates found, but no address was returned.');
     }
@@ -277,8 +292,14 @@ async getAddress(lat: number, long: number) {
         ? error
         : error?.message || JSON.stringify(error);
 
+    const fallbackAddress = await this.getAddressFromHttpFallback(lat, long);
+    if (fallbackAddress) {
+      this.address = fallbackAddress;
+      return;
+    }
+
     if (msg.includes('Geocoder is not present on this device/emulator')) {
-      await this.presentToast('Address lookup is not available on this emulator/device. Please test on a real device or a Google Play emulator.');
+      await this.presentToast('Address lookup is not available on this device right now.');
     } else if (
       msg.toLowerCase().includes('grpc failed') ||
       msg.toLowerCase().includes('service not available') ||
@@ -291,6 +312,36 @@ async getAddress(lat: number, long: number) {
       await this.presentToast('Unable to get address from current location.');
     }
   }
+}
+
+private async getAddressFromHttpFallback(lat: number, long: number): Promise<string> {
+  try {
+    const params = new HttpParams()
+      .set('format', 'jsonv2')
+      .set('lat', String(lat))
+      .set('lon', String(long))
+      .set('zoom', '18')
+      .set('addressdetails', '1');
+
+    const headers = new HttpHeaders({
+      Accept: 'application/json',
+      'Accept-Language': 'en',
+    });
+
+    const response: any = await firstValueFrom(
+      this.http.get('https://nominatim.openstreetmap.org/reverse', { params, headers }),
+    );
+
+    const displayName = (response?.display_name || '').trim();
+    if (displayName.length > 0) {
+      console.log('Resolved address via HTTP fallback:', displayName);
+      return displayName;
+    }
+  } catch (fallbackError) {
+    console.log('HTTP fallback reverse geocode failed', fallbackError);
+  }
+
+  return '';
 }
 
   pretifyAddress(address){

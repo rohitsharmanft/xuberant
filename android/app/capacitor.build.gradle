@@ -16,9 +16,7 @@ dependencies {
     implementation project(':capacitor-haptics')
     implementation project(':capacitor-keyboard')
     implementation project(':capacitor-status-bar')
-    implementation "androidx.core:core:1.6.+"
-    implementation "androidx.webkit:webkit:1.4.0"
-    implementation "com.google.android.gms:play-services-location:16.+"
+
 }
 
 
