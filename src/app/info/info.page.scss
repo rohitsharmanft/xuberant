@@ -126,8 +126,9 @@
 }
 
 .info-btn-primary--cta {
-  margin-top: 10px;
+  margin-top: 14px;
   padding: 0px 10px;
+  margin-bottom: 10px;
 }
 
 .info-btn-outline {
@@ -383,6 +384,27 @@ ion-textarea {
   overflow: hidden;
 }
 
+.info-type-two {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 10px 2px;
+}
+
+.info-type-two .info-data-card {
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(95, 49, 40, 0.05);
+}
+
+.info-data-card-title {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #252224;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
 .info-table {
   width: 100%;
   border-collapse: collapse;
@@ -410,6 +432,22 @@ ion-textarea {
   td {
     color: #3d2924;
   }
+}
+
+.info-type-two .info-table th,
+.info-type-two .info-table td {
+  padding: 7px 0;
+}
+
+.info-type-two .info-table tr:first-child th,
+.info-type-two .info-table tr:first-child td {
+  border-top: 1px solid #f0ebe4;
+}
+
+.info-type-two .info-table tr:first-child th {
+  color: #f6874f;
+  font-size: 0.78rem;
+  text-transform: none;
 }
 
 .info-pagination {

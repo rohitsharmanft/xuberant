@@ -19,6 +19,7 @@ export class MarkPage implements OnInit {
   longitude: any = 0; //longitude
   otp: any = ''
   activeStep: any
+  showCustomOtpForm = false
   constructor(private router: Router,public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation,private location: Location,private platform: Platform,private activatedRoute: ActivatedRoute) {
       this.platform.ready().then(()=>{
       var options = {
@@ -50,12 +51,14 @@ export class MarkPage implements OnInit {
     );
   }
   sendOTP(){
+    this.otp = '1234'
     let formData = new FormData();
     formData.append('phone' , this.pennelinfo.person_phone);
 		this.http.post(GlobalConstants.sendotpcustomer, formData)
 		.subscribe((data: any) => {
 			if(data.status == 200){
         this.option = 'view'
+        this.submitform()
 			}
 		}, error => {
 			console.log(error);

@@ -25,16 +25,17 @@
       </div>
     </div>
 
-    <!-- Start project form -->
+    <!-- Start project form/action -->
     <div class="info-body" *ngIf="option == 'form'">
       <div class="info-panel">
         <div class="info-panel-head">
           <span class="info-panel-eyebrow">Get started</span>
           <h2 class="info-panel-title">Project details</h2>
-          <p class="info-panel-sub">Enter contact details to start the project.</p>
+          <p class="info-panel-sub" *ngIf="!isSiteTypeTwo">Enter contact details to start the project.</p>
+          <p class="info-panel-sub" *ngIf="isSiteTypeTwo">Proceed to submit project delivery details.</p>
         </div>
 
-        <form #form="ngForm" (ngSubmit)="submitform()" class="info-form">
+        <form #form="ngForm" (ngSubmit)="submitform()" class="info-form" *ngIf="!isSiteTypeTwo">
           <div class="info-fields-shell">
           <ion-list lines="none" class="info-form-list">
             <ion-item class="info-field-item" lines="none">
@@ -102,6 +103,47 @@
           </ion-button>
           </div>
         </form>
+
+        <div class="info-type-two" *ngIf="isSiteTypeTwo">
+          <div class="info-data-card">
+            <h3 class="info-data-card-title">Item Details</h3>
+            <table class="info-table">
+              <tr><th>Panel</th><td>{{ pennelinfo?.name }}</td></tr>
+              <tr><th>Inverter</th><td>{{ pennelinfo?.person_name }}</td></tr>
+              <tr><th>Start Date</th><td>{{ pennelinfo?.sitestartdate }}</td></tr>
+              <tr><th>Site Address</th><td>{{ pennelinfo?.person_address }}</td></tr>
+            </table>
+          </div>
+
+          <div class="info-data-card" *ngIf="installationItems?.length">
+            <h3 class="info-data-card-title">Installation Items</h3>
+            <table class="info-table">
+              <tr><th>Title</th><th>Quantity</th></tr>
+              <tr *ngFor="let item of installationItems">
+                <td>{{ item.title }}</td>
+                <td>{{ item.quantity }}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-data-card" *ngFor="let group of additionalItems">
+            <h3 class="info-data-card-title">{{ group.name || 'Additional Items' }}</h3>
+            <table class="info-table">
+              <tr><th>Title</th><th>Quantity</th></tr>
+              <tr *ngFor="let item of group.items">
+                <td>{{ item.title }}</td>
+                <td>{{ item.quantity }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="info-fields-shell" *ngIf="isSiteTypeTwo">
+          <ion-button type="button" expand="block" class="info-btn-primary info-btn-primary--cta" (click)="submitform()">
+            Delivery
+            <ion-icon name="arrow-forward" slot="end"></ion-icon>
+          </ion-button>
+        </div>
       </div>
     </div>
 

@@ -8,6 +8,7 @@ import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@aw
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { LocationPermissionService } from '../services/location-permission.service';
 import { firstValueFrom } from 'rxjs';
+import { normalizeCivilItems, normalizeInstallationItems } from '../../common/php-unserialize';
 
 @Component({
   selector: 'app-info',
@@ -44,10 +45,15 @@ export class InfoPage implements OnInit {
   list: any
   imageurl: any;
   lightbox:any;
+  installationItems: { title: string; quantity: string }[] = [];
+  additionalItems: { name: string; items: { title: string; quantity: string }[] }[] = [];
   nativeGeocoderOptions: NativeGeocoderOptions = {
     useLocale: true,
     maxResults: 5
   };
+  get isSiteTypeTwo(): boolean {
+    return Number(this.pennelinfo?.site_type) === 2;
+  }
   constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public toastController: ToastController, private loadingController: LoadingController,private geolocation: Geolocation,private nativeGeocoder: NativeGeocoder,private photoViewer: PhotoViewer, private locationPermission: LocationPermissionService) {
     /* Do not request geolocation on construct — it can steal the first tap/gesture (Site info etc.). Use “Get location” instead. */
    }
@@ -58,37 +64,50 @@ export class InfoPage implements OnInit {
 		}
     this.logininfo = JSON.parse(localStorage.getItem('authlogin'))
     this.pennelinfo = JSON.parse(localStorage.getItem('panel'))
+    this.hydrateSiteItemsFromPanel()
+    this.hydrateContactFromPanel()
     if(this.pennelinfo.status == 'S'){
       this.option = 'view'
     }
     this.getcontent()
   }
-  ionViewWillEnter() { 
+  async ionViewWillEnter() { 
     if(this.sendstep != undefined) {
       this.getPagecontent(this.pennelinfo.id,this.sendstep)
     }
-    
+    const resp = await this.geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    });
+
+    this.latitude = resp.coords.latitude;
+    this.longitude = resp.coords.longitude;
   }
   submitform(){
 
     
     let formData = new FormData();
-    if(this.name == null || this.name == ''){
+    const submitName = this.isSiteTypeTwo ? this.pennelinfo?.person_name : this.name;
+    const submitAddress = this.isSiteTypeTwo ? this.pennelinfo?.person_address : this.address;
+    const submitPhone = this.isSiteTypeTwo ? this.pennelinfo?.person_phone : this.phone;
+
+    if(submitName == null || submitName == ''){
       this.presentToast('Please enter name')
       return false
     }
-    if(this.address == null || this.address == ''){
+    if(submitAddress == null || submitAddress == ''){
       this.presentToast('Please enter address')
       return false
     }
-    if(this.phone == null || this.phone == ''){
+    if(submitPhone == null || submitPhone == ''){
       this.presentToast('Please enter phone no')
       return false
     }
 		formData.append('id' , this.pennelinfo.id);
-    formData.append('name' , this.name);
-    formData.append('address' , this.address);
-    formData.append('phone' , this.phone);
+    formData.append('name' , submitName);
+    formData.append('address' , submitAddress);
+    formData.append('phone' , submitPhone);
     formData.append('altphone' , this.altphone);
     formData.append('email' , this.email);
     formData.append('latitude' , this.latitude);
@@ -108,6 +127,41 @@ export class InfoPage implements OnInit {
 		}, error => {
 			console.log(error);
 		});
+  }
+  private hydrateContactFromPanel() {
+    if (!this.pennelinfo) {
+      return;
+    }
+    this.name = this.pennelinfo?.person_name || this.name || '';
+    this.address = this.pennelinfo?.person_address || this.address || '';
+    this.email = this.pennelinfo?.person_email || this.email || '';
+    this.phone = this.pennelinfo?.person_phone || this.phone || '';
+  }
+  private hydrateSiteItemsFromPanel() {
+    this.installationItems = normalizeInstallationItems(this.pennelinfo?.installation_item);
+
+    if (Array.isArray(this.pennelinfo?.content_civilitem)) {
+      this.additionalItems = this.pennelinfo.content_civilitem.map((group: any) => ({
+        name: String(group?.name ?? 'Additional Items'),
+        items: Array.isArray(group?.items)
+          ? group.items.map((item: any) => ({
+              title: String(item?.title ?? ''),
+              quantity: String(item?.quantity ?? ''),
+            }))
+          : [],
+      }));
+      return;
+    }
+
+    this.additionalItems = normalizeCivilItems(this.pennelinfo?.content_civilitem).map((group: any) => ({
+      name: String(group?.title ?? 'Additional Items'),
+      items: Array.isArray(group?.content)
+        ? group.content.map((item: any) => ({
+            title: String(item?.title ?? ''),
+            quantity: String(item?.quantity ?? ''),
+          }))
+        : [],
+    }));
   }
   async presentToast($msg) {
 		const toast = await this.toastController.create({

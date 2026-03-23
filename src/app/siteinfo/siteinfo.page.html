@@ -65,13 +65,13 @@
         </div>
         <div class="siteinfo-panel-content">
           <div class="civil-card" *ngFor="let civil of civilItems">
-            <h3 class="civil-title">{{ civil.title }}</h3>
+            <h3 class="civil-title">{{ civil.name }}</h3>
             <ion-grid class="siteinfo-grid">
               <ion-row class="siteinfo-grid-head">
                 <ion-col>Title</ion-col>
                 <ion-col size="4">Quantity</ion-col>
               </ion-row>
-              <ion-row *ngFor="let content of civil.content; index as i">
+              <ion-row *ngFor="let content of civil.items; index as i">
                 <ion-col>{{ content.title }}</ion-col>
                 <ion-col size="4">{{ content.quantity }}</ion-col>
               </ion-row>
@@ -88,15 +88,15 @@
           <table class="siteinfo-table">
             <tr>
               <th>Name</th>
-              <td>{{ pennelinfo?.siteinfo?.name }}</td>
+              <td>{{ beneficiaryName }}</td>
             </tr>
             <tr>
               <th>Address</th>
-              <td>{{ pennelinfo?.siteinfo?.address }}</td>
+              <td>{{ beneficiaryAddress }}</td>
             </tr>
             <tr>
               <th>Phone</th>
-              <td>{{ pennelinfo?.siteinfo?.phone }}</td>
+              <td>{{ beneficiaryPhone }}</td>
             </tr>
             <tr>
               <th>Alternate Ph</th>

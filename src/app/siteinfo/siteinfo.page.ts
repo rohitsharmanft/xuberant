@@ -28,6 +28,31 @@ export class SiteinfoPage implements OnInit {
     this.logininfo = JSON.parse(localStorage.getItem('authlogin') as string);
     this.pennelinfo = JSON.parse(localStorage.getItem('panel') as string);
     this.installationItems = normalizeInstallationItems(this.pennelinfo?.installation_item);
-    this.civilItems = normalizeCivilItems(this.pennelinfo?.civil_item);
+    this.civilItems = this.pennelinfo?.content_civilitem;
+  }
+
+  get isSiteTypeTwo(): boolean {
+    return Number(this.pennelinfo?.site_type) === 2;
+  }
+
+  get beneficiaryName(): string {
+    if (this.isSiteTypeTwo) {
+      return this.pennelinfo?.person_name || '';
+    }
+    return this.pennelinfo?.siteinfo?.name || '';
+  }
+
+  get beneficiaryAddress(): string {
+    if (this.isSiteTypeTwo) {
+      return this.pennelinfo?.person_address || '';
+    }
+    return this.pennelinfo?.siteinfo?.address || '';
+  }
+
+  get beneficiaryPhone(): string {
+    if (this.isSiteTypeTwo) {
+      return this.pennelinfo?.person_phone || '';
+    }
+    return this.pennelinfo?.siteinfo?.phone || '';
   }
 }
