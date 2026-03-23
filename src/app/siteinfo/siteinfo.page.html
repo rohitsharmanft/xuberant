@@ -1,93 +1,114 @@
-<ion-content class="hearer-top-content">
-  <h5>Site Details</h5>
-  <div class="site-info">  
-    <p>Item Details</p>
-    <table class="site-n">
-      <tr>
-        <td>Panel:</td>
-        <td>{{this.pennelinfo.name}}</td>
-      </tr>
-      <tr>
-        <td>Inverter:</td>
-        <td>{{this.pennelinfo.person_name}}</td>
-      </tr>
-      <tr>
-        <td>Start Date:</td>
-        <td>{{this.pennelinfo.sitestartdate}}</td>
-      </tr>
-      <tr>
-        <td>Site Address:</td>
-        <td>{{this.pennelinfo.person_address}}</td>
-      </tr>
-      
-    </table>
-
-    <h4>Installation Item</h4>
-
-    
-
-    <div class="table-grid">
-      <ion-grid class="ion-margin">
-        <ion-row>
-          <ion-col>Title</ion-col>
-          <ion-col>Quantity</ion-col>
-        </ion-row>
-        <ion-row *ngFor="let installation of installationItems; index as i">
-          <ion-col>{{ installation.title }}</ion-col>
-          <ion-col>{{ installation.quantity }}</ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>  
-
-    <div class="table-grid">
-      <h4>Additional Item</h4>
-      <div *ngFor="let civil of civilItems">
-        <ion-grid class="ion-margin cutom-margin">
-          <ion-row>
-            <ion-col>{{ civil.title }}</ion-col>
-          </ion-row>
-        </ion-grid>
-
-        <ion-grid class="ion-margin">
-          <ion-row>
-            <ion-col>Title</ion-col>
-            <ion-col>Quantity</ion-col>
-          </ion-row>
-          <ion-row *ngFor="let content of civil.content; index as i">
-            <ion-col>{{ content.title }}</ion-col>
-            <ion-col>{{ content.quantity }}</ion-col>
-          </ion-row>
-        </ion-grid>
+<ion-content class="siteinfo-page" [fullscreen]="true">
+  <div class="siteinfo-shell">
+    <div class="siteinfo-screen">
+      <div class="siteinfo-summary-card">
+        <span class="siteinfo-badge">Site Details</span>
+        <h1 class="siteinfo-title">{{ pennelinfo?.name }}</h1>
+        <div class="project-card__cell">
+          <span class="project-card__k">Location</span>
+          <span class="project-card__v project-card__v--loc project-location-value">
+            <img src="assets/img/mark.png" class="project-card__pin" alt="" />
+            {{ pennelinfo?.person_address }}
+          </span>
+        </div>
       </div>
-    </div> 
-</div>
+    </div>
 
- 
-    <div class="site-info">
-        
-        <p>Beneficiary Info</p>
-        <table>
-          <tr>
-            <td>Name:</td>
-            <td>{{ pennelinfo?.siteinfo?.name }}</td>
-          </tr>
-          <tr>
-            <td>Address:</td>
-            <td>{{ pennelinfo?.siteinfo?.address }}</td>
-          </tr>
-          <tr>
-            <td>Phone:</td>
-            <td>{{ pennelinfo?.siteinfo?.phone }}</td>
-          </tr>
-          <tr>
-            <td>Alternate Ph:</td>
-            <td>{{ pennelinfo?.siteinfo?.altphone }}</td>
-          </tr>
-          <tr>
-            <td>Email:</td>
-            <td>{{ pennelinfo?.siteinfo?.email }}</td>
-          </tr>
-        </table>
-       </div> 
-        
+    <div class="siteinfo-body">
+      <div class="siteinfo-panel">
+        <div class="siteinfo-panel-head">
+          <h2 class="siteinfo-panel-title">Item Details</h2>
+        </div>
+        <div class="siteinfo-panel-content">
+          <table class="siteinfo-table siteinfo-table--details">
+            <tr>
+              <th>Panel</th>
+              <td>{{ pennelinfo?.name }}</td>
+            </tr>
+            <tr>
+              <th>Inverter</th>
+              <td>{{ pennelinfo?.person_name }}</td>
+            </tr>
+            <tr>
+              <th>Start Date</th>
+              <td>{{ pennelinfo?.sitestartdate }}</td>
+            </tr>
+            <tr>
+              <th>Site Address</th>
+              <td>{{ pennelinfo?.person_address }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="siteinfo-panel">
+        <div class="siteinfo-panel-head">
+          <h2 class="siteinfo-panel-title">Installation Items</h2>
+        </div>
+        <div class="siteinfo-panel-content">
+          <ion-grid class="siteinfo-grid">
+            <ion-row class="siteinfo-grid-head">
+              <ion-col>Title</ion-col>
+              <ion-col size="4">Quantity</ion-col>
+            </ion-row>
+            <ion-row *ngFor="let installation of installationItems; index as i">
+              <ion-col>{{ installation.title }}</ion-col>
+              <ion-col size="4">{{ installation.quantity }}</ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </div>
+
+      <div class="siteinfo-panel">
+        <div class="siteinfo-panel-head">
+          <h2 class="siteinfo-panel-title">Additional Items</h2>
+        </div>
+        <div class="siteinfo-panel-content">
+          <div class="civil-card" *ngFor="let civil of civilItems">
+            <h3 class="civil-title">{{ civil.title }}</h3>
+            <ion-grid class="siteinfo-grid">
+              <ion-row class="siteinfo-grid-head">
+                <ion-col>Title</ion-col>
+                <ion-col size="4">Quantity</ion-col>
+              </ion-row>
+              <ion-row *ngFor="let content of civil.content; index as i">
+                <ion-col>{{ content.title }}</ion-col>
+                <ion-col size="4">{{ content.quantity }}</ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+        </div>
+      </div>
+
+      <div class="siteinfo-panel">
+        <div class="siteinfo-panel-head">
+          <h2 class="siteinfo-panel-title">Beneficiary Info</h2>
+        </div>
+        <div class="siteinfo-panel-content">
+          <table class="siteinfo-table">
+            <tr>
+              <th>Name</th>
+              <td>{{ pennelinfo?.siteinfo?.name }}</td>
+            </tr>
+            <tr>
+              <th>Address</th>
+              <td>{{ pennelinfo?.siteinfo?.address }}</td>
+            </tr>
+            <tr>
+              <th>Phone</th>
+              <td>{{ pennelinfo?.siteinfo?.phone }}</td>
+            </tr>
+            <tr>
+              <th>Alternate Ph</th>
+              <td>{{ pennelinfo?.siteinfo?.altphone }}</td>
+            </tr>
+            <tr>
+              <th>Email</th>
+              <td>{{ pennelinfo?.siteinfo?.email }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </ion-content>
