@@ -4,9 +4,11 @@
 /** Ionic CSS Variables **/
 :root {
   /** app brand colors **/
+  --ion-backdrop-color: rgba(0, 0, 0, 0); 
   --app-color-brand: #f6874f;
   --app-color-brand-accent: #f6874f;
   --app-color-brand-bg: #fffaec;
+  --ion-background-color: #fffaec;
 
   /** primary **/
   --ion-color-primary: #3880ff;
