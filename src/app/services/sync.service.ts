@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
 import { ToastController } from '@ionic/angular';
@@ -32,6 +32,7 @@ export class SyncService {
   public syncState$: Observable<SyncState> = this.syncStateSubject.asObservable();
 
   private isSyncing = false;
+  private readonly defaultSiteSearchKey = 'AD123';
 
   constructor(
     private http: HttpClient,
@@ -106,9 +107,14 @@ export class SyncService {
     this.updateStatus('syncing');
 
     try {
+      const siteListUrl = this.buildSiteListUrl();
+      if (!siteListUrl) {
+        this.updateStatus('idle');
+        return;
+      }
       // Fetch site list
       const sites: any = await firstValueFrom(
-        this.http.get(GlobalConstants.sitelist, { headers: auth })
+        this.http.get(siteListUrl, { headers: auth })
       );
       if (sites?.data) {
         await this.storage.clearCachedTable('sites');
@@ -122,7 +128,13 @@ export class SyncService {
         status: 'idle',
         lastSyncedAt: new Date().toISOString()
       });
-    } catch (err) {
+    } catch (err: any) {
+      // Backend route may differ across environments; avoid hard error state on 404.
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        console.warn('[Sync] site list endpoint not found for current route:', err.url);
+        this.updateStatus('idle');
+        return;
+      }
       console.error('[Sync] fetchAndCacheServerData failed:', err);
       this.updateStatus('error');
     }
@@ -224,6 +236,22 @@ export class SyncService {
         return { Authorization: `Bearer ${auth.token}` };
       }
       return {};
+    } catch {
+      return null;
+    }
+  }
+
+  private buildSiteListUrl(): string | null {
+    try {
+      const raw = localStorage.getItem('authlogin');
+      if (!raw) return null;
+      const auth = JSON.parse(raw);
+      const userId = auth?.id;
+      const userType = auth?.type;
+      if (!userId || !userType) {
+        return null;
+      }
+      return `${GlobalConstants.sitelist}/${userId}/${userType}/${this.defaultSiteSearchKey}`;
     } catch {
       return null;
     }
