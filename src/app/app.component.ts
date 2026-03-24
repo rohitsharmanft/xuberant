@@ -4,6 +4,7 @@ import { Router } from '@angular/router'
 import { Platform, AlertController } from '@ionic/angular';
 import { Location } from '@angular/common';
 import { LocationPermissionService } from './services/location-permission.service';
+import { SyncService } from './services/sync.service';
 
 @Component({
   selector: 'app-root',
@@ -15,12 +16,15 @@ export class AppComponent {
   backoption: any = ''
   locationCoords: any
   timetest: any
+  syncState$ = this.syncService.syncState$;
+
   constructor(
     private router: Router,
     private platform: Platform,
     public alertController: AlertController,
     private _location: Location,
     private locationPermission: LocationPermissionService,
+    private syncService: SyncService,
   ) {
     this.initializeApp();
     
@@ -52,6 +56,7 @@ export class AppComponent {
       }
     }, 100);
     void this.platform.ready().then(() => this.locationPermission.promptOnLaunchIfNeeded());
+    void this.syncService.initialize();
   }
   logout() {
 

@@ -33,3 +33,38 @@ img.logout-icon {
     padding-top: 20%;
     margin-top: 24%;
 }
+
+.sync-status-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 8px;
+}
+
+.sync-icon {
+    font-size: 18px;
+    color: #fff;
+}
+
+.sync-icon.spinning {
+    animation: spin 1.2s linear infinite;
+}
+
+.sync-icon.offline-icon {
+    color: #ffd534;
+}
+
+.sync-icon.error-icon {
+    color: #ff4961;
+}
+
+.sync-badge {
+    font-size: 10px;
+    min-width: 16px;
+    padding: 2px 4px;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}

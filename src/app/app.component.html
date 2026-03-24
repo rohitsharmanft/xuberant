@@ -15,8 +15,16 @@
         <ion-col size="8">
           <div class="login-profile">
             <ion-row>
-              <ion-col size="10">
-                <span>Hi '{{this.logininfo.name}}'</span> 
+              <ion-col size="9">
+                <span>Hi '{{this.logininfo.name}}'</span>
+              </ion-col>
+              <ion-col size="1" class="sync-status-col">
+                <ng-container *ngIf="syncState$ | async as syncState">
+                  <ion-icon *ngIf="syncState.status === 'syncing'" name="sync-outline" class="sync-icon spinning" title="Syncing…"></ion-icon>
+                  <ion-badge *ngIf="syncState.pendingCount > 0 && syncState.status !== 'syncing'" color="warning" class="sync-badge" title="Pending sync">{{syncState.pendingCount}}</ion-badge>
+                  <ion-icon *ngIf="syncState.status === 'offline'" name="cloud-offline-outline" class="sync-icon offline-icon" title="Offline"></ion-icon>
+                  <ion-icon *ngIf="syncState.status === 'error'" name="alert-circle-outline" class="sync-icon error-icon" title="Sync error"></ion-icon>
+                </ng-container>
               </ion-col>
               <ion-col size="2">
                 <p (click)="logout()" class="logout-app"><ion-icon name="log-out-outline"></ion-icon></p>
