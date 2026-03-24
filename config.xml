@@ -25,7 +25,7 @@
     <preference name="BackupWebStorage" value="none" />
 
     <!-- NEW Splash (Android 12+) -->
-    <preference name="AndroidWindowSplashScreenAnimatedIcon" value="resources/android/splash.png" />
+    <preference name="AndroidWindowSplashScreenAnimatedIcon" value="android/app/src/main/res/drawable/splash.png" />
     <preference name="AndroidWindowSplashScreenBackground" value="#ffffff" />
 
     <platform name="android">
@@ -34,6 +34,8 @@
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
             <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.CAMERA" />
         </config-file>
 
         <edit-config file="app/src/main/AndroidManifest.xml"
@@ -47,12 +49,11 @@
             target="app/src/main/res/xml/network_security_config.xml" />
 
         <!-- Icons only -->
-        <icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />
-        <icon density="mdpi" src="resources/android/icon/drawable-mdpi-icon.png" />
-        <icon density="hdpi" src="resources/android/icon/drawable-hdpi-icon.png" />
-        <icon density="xhdpi" src="resources/android/icon/drawable-xhdpi-icon.png" />
-        <icon density="xxhdpi" src="resources/android/icon/drawable-xxhdpi-icon.png" />
-        <icon density="xxxhdpi" src="resources/android/icon/drawable-xxxhdpi-icon.png" />
+        <icon density="mdpi" src="android/app/src/main/res/mipmap-mdpi/ic_launcher.png" />
+        <icon density="hdpi" src="android/app/src/main/res/mipmap-hdpi/ic_launcher.png" />
+        <icon density="xhdpi" src="android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" />
+        <icon density="xxhdpi" src="android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" />
+        <icon density="xxxhdpi" src="android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" />
     </platform>
 
     <!-- Updated Plugins -->
