@@ -138,11 +138,6 @@ export class UploadimagePage implements OnInit {
     if (!files.length) {
       return;
     }
-    const webpFiles = await this.convertFilesToWebp(files);
-    if (!webpFiles.length) {
-      await this.presentToast('Could not process selected images.');
-      return;
-    }
     const allowed = await this.locationPermission.ensureLocationAllowed({ showRationale: true });
     if (!allowed) {
       await this.presentToast('Location permission is needed to tag your photos.');
@@ -150,6 +145,12 @@ export class UploadimagePage implements OnInit {
     }
     await this.showLoading();
     await this.refreshCoords();
+    const webpFiles = await this.convertFilesToWebp(files);
+    if (!webpFiles.length) {
+      await this.loadingController.dismiss();
+      await this.presentToast('Could not process selected images.');
+      return;
+    }
     
     const formData = new FormData();
     for (const file of webpFiles) {
@@ -229,9 +230,6 @@ export class UploadimagePage implements OnInit {
   }
 
   private async convertImageFileToWebp(file: File): Promise<File | null> {
-    if ((file.type || '').toLowerCase() === 'image/webp') {
-      return file;
-    }
     try {
       const imageBitmap = await this.loadImageBitmap(file);
       const canvas = document.createElement('canvas');
@@ -242,6 +240,7 @@ export class UploadimagePage implements OnInit {
         return null;
       }
       ctx.drawImage(imageBitmap, 0, 0);
+      this.drawBottomRightWatermark(ctx, canvas.width, canvas.height);
       const webpBlob = await this.canvasToWebpBlob(canvas);
       if (!webpBlob) {
         return null;
@@ -252,6 +251,88 @@ export class UploadimagePage implements OnInit {
       console.log('WebP conversion failed', err);
       return null;
     }
+  }
+
+  private drawBottomRightWatermark(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+    const fontSize = Math.max(11, Math.round(width * 0.015));
+    const lineHeight = Math.round(fontSize * 1.35);
+    const paddingX = Math.max(10, Math.round(fontSize * 0.8));
+    const paddingY = Math.max(10, Math.round(fontSize * 0.8));
+    const maxTextWidth = Math.round(width * 0.5);
+    const sourceLines = this.getWatermarkLines();
+
+    ctx.save();
+    ctx.font = `600 ${fontSize}px Arial, sans-serif`;
+    const lines: string[] = [];
+    for (const line of sourceLines) {
+      const wrapped = this.wrapText(ctx, line, maxTextWidth);
+      for (const item of wrapped) {
+        lines.push(item);
+      }
+    }
+    const textWidth = lines.reduce((max, line) => Math.max(max, ctx.measureText(line).width), 0);
+    const boxWidth = textWidth + (paddingX * 2);
+    const boxHeight = (lines.length * lineHeight) + (paddingY * 2);
+    const x = Math.max(8, width - boxWidth - 16);
+    const y = Math.max(boxHeight + 8, height - 16);
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+    ctx.fillRect(x, y - boxHeight, boxWidth, boxHeight);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.textBaseline = 'top';
+    lines.forEach((line, index) => {
+      const lineY = (y - boxHeight) + paddingY + (index * lineHeight);
+      ctx.fillText(line, x + paddingX, lineY);
+    });
+    ctx.restore();
+  }
+
+  private getWatermarkLines(): string[] {
+    const siteName = (this.pennelinfo?.name || '').toString().trim() || 'N/A';
+    const address = (this.pennelinfo?.person_address || '').toString().trim() || 'N/A';
+    const lat = Number.isFinite(Number(this.latitude)) ? Number(this.latitude).toFixed(6) : 'N/A';
+    const lng = Number.isFinite(Number(this.longitude)) ? Number(this.longitude).toFixed(6) : 'N/A';
+    const createdDate = this.formatCreatedDate(new Date());
+    return [
+      `Site: ${siteName}`,
+      `Address: ${address}`,
+      `Lat/Long: ${lat}, ${lng}`,
+      `Created: ${createdDate}`,
+    ];
+  }
+
+  private formatCreatedDate(date: Date): string {
+    const pad = (value: number) => value.toString().padStart(2, '0');
+    const day = pad(date.getDate());
+    const month = pad(date.getMonth() + 1);
+    const year = date.getFullYear();
+    const hour = pad(date.getHours());
+    const minute = pad(date.getMinutes());
+    return `${day}-${month}-${year} ${hour}:${minute}`;
+  }
+
+  private wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+    if (!text) {
+      return [''];
+    }
+    const words = text.split(/\s+/);
+    const lines: string[] = [];
+    let current = '';
+    for (const word of words) {
+      const candidate = current ? `${current} ${word}` : word;
+      if (ctx.measureText(candidate).width <= maxWidth) {
+        current = candidate;
+      } else {
+        if (current) {
+          lines.push(current);
+        }
+        current = word;
+      }
+    }
+    if (current) {
+      lines.push(current);
+    }
+    return lines.length ? lines : [text];
   }
 
   private loadImageBitmap(file: File): Promise<HTMLImageElement> {
