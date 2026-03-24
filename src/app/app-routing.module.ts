@@ -47,6 +47,10 @@ const routes: Routes = [
     path: 'foundation',
     loadChildren: () => import('./foundation/foundation.module').then( m => m.FoundationPageModule)
   },
+  {
+    path: 'add-site',
+    loadChildren: () => import('./add-site/add-site.module').then( m => m.AddSitePageModule)
+  },
 ];
 
 @NgModule({
