@@ -34,6 +34,8 @@ export class DashboardPage implements OnInit {
     }
   }
   ionViewWillEnter() {
+    this.searchResults = []
+    this.pannellist = []
     this.logininfo = JSON.parse(localStorage.getItem('authlogin'))
     if (this.logininfo.type == '1') {
       this.getcontent()
