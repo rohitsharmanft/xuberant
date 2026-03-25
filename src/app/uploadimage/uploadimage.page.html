@@ -18,7 +18,7 @@
     </ion-col>
     <ion-col size="12">
       <div class='gallery-image'>
-        <input type="file" accept=".jpg,.jpeg,.png,.webp,image/*" id="fileInput" multiple (change)="onGalleryChange($event)" />
+        <input type="file" accept=".jpg,.jpeg,.png,image/*" id="fileInput" multiple (change)="onGalleryChange($event)" />
          <label for="fileInput"  class="galleryImage">
             <ion-icon name="images-outline"></ion-icon> Gallery
          </label>
@@ -30,9 +30,10 @@
   
   <ion-row class="ion-justify-content-center image-box-list">
     <p style="text-align: center; width: 100%;">Your recent uploaded images..</p>
+    
     <ion-col size="12">
       <div *ngFor="let item of imagelist; trackBy: trackByImage" class="image-box">
-        <img [src]="pathimg + item" class="list-image">
+        <img [src]="item?.src" class="list-image">
       </div>  
     </ion-col>
   </ion-row>

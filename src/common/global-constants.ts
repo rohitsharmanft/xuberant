@@ -4,6 +4,7 @@ export class GlobalConstants {
     public static sitelist: string = "https://app.xuberantsolutions.com/api/v1/site";
     public static startproject: string = "https://app.xuberantsolutions.com/api/v1/save";
     public static multipleimages: string = "https://app.xuberantsolutions.com/api/v1/multipleimages";
+    public static multipleStepImages: string = "https://app.xuberantsolutions.com/api/v1/multipleStepImages";
     public static base64imageupload: string = "https://app.xuberantsolutions.com/api/v1/base64imageupload";
     public static daylist: string = "https://app.xuberantsolutions.com/api/v1/daylist/";
     public static serialnumberverify: string = "https://app.xuberantsolutions.com/api/v1/serialnumberverify";

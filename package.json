@@ -27,7 +27,6 @@
     "@awesome-cordova-plugins/image-picker": "^8.1.0",
     "@awesome-cordova-plugins/location-accuracy": "^8.1.0",
     "@awesome-cordova-plugins/native-geocoder": "^8.1.0",
-    "@awesome-cordova-plugins/photo-viewer": "^8.1.0",
     "@capacitor-mlkit/barcode-scanning": "^8.0.1",
     "@capacitor/android": "8.2.0",
     "@capacitor/app": "8.0.1",
@@ -51,6 +50,7 @@
     "ng2-file-upload": "^1.4.0",
     "ngx-pagination": "5.1.1",
     "rxjs": "^7.8.2",
+    "swiper": "^11.2.10",
     "tslib": "^2.0.0",
     "zone.js": "~0.14.10"
   },

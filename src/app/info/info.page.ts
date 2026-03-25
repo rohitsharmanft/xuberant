@@ -5,7 +5,6 @@ import { Router,ActivatedRoute } from '@angular/router'
 import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@awesome-cordova-plugins/native-geocoder/ngx';
-import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { LocationPermissionService } from '../services/location-permission.service';
 import { firstValueFrom } from 'rxjs';
 import { normalizeCivilItems, normalizeInstallationItems } from '../../common/php-unserialize';
@@ -54,7 +53,7 @@ export class InfoPage implements OnInit {
   get isSiteTypeTwo(): boolean {
     return Number(this.pennelinfo?.site_type) === 2;
   }
-  constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public toastController: ToastController, private loadingController: LoadingController,private geolocation: Geolocation,private nativeGeocoder: NativeGeocoder,private photoViewer: PhotoViewer, private locationPermission: LocationPermissionService) {
+  constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public toastController: ToastController, private loadingController: LoadingController,private geolocation: Geolocation,private nativeGeocoder: NativeGeocoder, private locationPermission: LocationPermissionService) {
     /* Do not request geolocation on construct — it can steal the first tap/gesture (Site info etc.). Use “Get location” instead. */
    }
 
@@ -448,6 +447,7 @@ private async getAddressFromHttpFallback(lat: number, long: number): Promise<str
   }
 
   viewImage(path,img) {
-    this.photoViewer.show(path+img);
+    const url = `${path ?? ''}${img ?? ''}`;
+    window.open(url, '_blank');
   }
 }

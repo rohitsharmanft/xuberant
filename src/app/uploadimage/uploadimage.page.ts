@@ -21,7 +21,9 @@ export class UploadimagePage implements OnInit {
    latitude: any = 0; //latitude
    longitude: any = 0; //longitude
    clickedImage: string;
-   imagelist: any = []
+  imagelist: Array<{ src: string; name?: string }> = []
+  queuedTotalsByStep: Array<{ stepId: string; count: number }> = [];
+  queuedTotalAllSteps = 0;
    pathimg = GlobalConstants.pathimg
    activeStep: any
    private lastCoordsAt = 0;
@@ -30,9 +32,16 @@ export class UploadimagePage implements OnInit {
     'image/jpeg',
     'image/jpg',
     'image/png',
-    'image/webp',
    ]);
-   private readonly webpQuality = 0.8;
+  private readonly maxImageBytes = 100 * 1024; // 100KB
+  private readonly maxDimension = 900; // downscale large photos for speed + size
+  private readonly jpegBlobTimeoutMs = 8000; // avoid hanging toBlob calls
+  private readonly geolocationTimeoutMs = 10000;
+  private readonly perImageTimeoutMs = 25000;
+  private readonly storageDecodeTimeoutMs = 15000; // avoid hanging on some device WebViews
+  private readonly storageMaxDimension = 450;
+  private readonly storageMaxBytes = 850 * 1024; // per-image Base64 size guard
+  private readonly storageQualityCandidates = [0.18];
 
   constructor(
     private router: Router,
@@ -57,6 +66,8 @@ export class UploadimagePage implements OnInit {
     this.activatedRoute.queryParams.subscribe((params) => {
       console.log(params.activeid);
       this.activeStep = params.activeid;
+      void this.hydratePendingImagesPreview();
+      void this.hydratePendingTotals();
     });
 
     void this.refreshCoords();
@@ -71,7 +82,10 @@ export class UploadimagePage implements OnInit {
       return;
     }
     try {
-      const resp = await this.geolocation.getCurrentPosition();
+      const resp = await this.withTimeout(
+        this.geolocation.getCurrentPosition(),
+        this.geolocationTimeoutMs,
+      );
       this.latitude = resp.coords.latitude;
       this.longitude = resp.coords.longitude;
       this.lastCoordsAt = Date.now();
@@ -116,12 +130,12 @@ export class UploadimagePage implements OnInit {
     const list = Array.from(picked);
     const validFiles = list.filter((file) => this.isSupportedImage(file));
     if (!validFiles.length) {
-      await this.presentToast('Only JPG, PNG, and WEBP images are allowed.');
+      await this.presentToast('Only JPG/JPEG and PNG images are allowed.');
       input.value = '';
       return;
     }
     if (validFiles.length !== list.length) {
-      await this.presentToast('Some files were skipped. Allowed: JPG, PNG, WEBP.');
+      await this.presentToast('Some files were skipped. Allowed: JPG/JPEG and PNG.');
     }
     input.value = '';
     await this.uploadGalleryFiles(validFiles);
@@ -134,50 +148,272 @@ export class UploadimagePage implements OnInit {
     return this.allowedImageTypes.has(file.type.toLowerCase());
   }
 
+  private getPendingQueueKey(): string {
+    const panelId = this.pennelinfo?.id;
+    const stepId = this.activeStep ?? '';
+
+    // activeStep is required to keep images for the correct workflow step.
+    if (!panelId || stepId === '' || stepId === null || stepId === undefined) {
+      return '';
+    }
+    return `pendingImages:${panelId}:${stepId}`;
+  }
+
+  private readPendingQueue(queueKey: string): any | null {
+    if (!queueKey) return null;
+    try {
+      const raw = localStorage.getItem(queueKey);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  private async fileToDataUrl(file: File): Promise<string> {
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  private estimateBytesFromDataUrl(dataUrl: string): number {
+    // dataUrl = "data:<mime>;base64,<payload>"
+    const commaIdx = dataUrl.indexOf(',');
+    const base64 = commaIdx >= 0 ? dataUrl.slice(commaIdx + 1) : dataUrl;
+    // Base64 expands data by ~4/3; reverse it.
+    return Math.floor((base64.length * 3) / 4);
+  }
+
+  private async fileToDownscaledJpegDataUrlForStorage(file: File): Promise<string> {
+    try {
+      // Some devices hang on decoding for very large images; time-bound the decode.
+      const t0 = Date.now();
+      const img: any = await this.withTimeout(this.loadImageBitmap(file), this.storageDecodeTimeoutMs);
+      const t1 = Date.now();
+      const originalW = img?.naturalWidth || img?.width;
+      const originalH = img?.naturalHeight || img?.height;
+      if (!originalW || !originalH) {
+        throw new Error('Invalid image dimensions');
+      }
+
+      const largestSide = Math.max(originalW, originalH);
+      const scale = largestSide > this.storageMaxDimension ? this.storageMaxDimension / largestSide : 1;
+      const targetW = Math.max(1, Math.round(originalW * scale));
+      const targetH = Math.max(1, Math.round(originalH * scale));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = targetW;
+      canvas.height = targetH;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Canvas 2d context not available');
+      }
+
+      // JPEG has no alpha; fill background so it doesn't look dark.
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, targetW, targetH);
+      ctx.drawImage(img, 0, 0, targetW, targetH);
+
+      // Use a single attempt first (much faster on devices).
+      // If it is still over quota, we will throw and the caller will treat it as a save failure.
+      const q = this.storageQualityCandidates[this.storageQualityCandidates.length - 1];
+      const t2 = Date.now();
+      const dataUrl = canvas.toDataURL('image/jpeg', q);
+      const t3 = Date.now();
+      const totalMs = t3 - t0;
+      // Avoid console spam; only log slow ones.
+      if (totalMs > 3000) {
+        console.log('Downscale timings (ms)', {
+          totalMs,
+          decodeMs: t1 - t0,
+          encodeMs: t3 - t2,
+          originalW,
+          originalH,
+          targetW,
+          targetH,
+        });
+      }
+      if (this.estimateBytesFromDataUrl(dataUrl) > this.storageMaxBytes) {
+        throw new Error('Image too large to store in localStorage');
+      }
+      return dataUrl;
+    } catch (e) {
+      // Fallback: try direct FileReader -> Base64.
+      // If it doesn't fit localStorage size guard, fail fast.
+      const dataUrl = await this.withTimeout(this.fileToDataUrl(file), this.storageDecodeTimeoutMs);
+      if (this.estimateBytesFromDataUrl(dataUrl) > this.storageMaxBytes) {
+        const lastMsg = (e as any)?.message ? String((e as any).message) : String(e);
+        throw new Error(`Image too large to store in localStorage. ${lastMsg}`);
+      }
+      return dataUrl;
+    }
+  }
+
+  private async hydratePendingImagesPreview(): Promise<void> {
+    const queueKey = this.getPendingQueueKey();
+    if (!queueKey) {
+      this.imagelist = [];
+      return;
+    }
+
+    const queue = this.readPendingQueue(queueKey);
+    const items = Array.isArray(queue?.items) ? queue.items : [];
+    this.imagelist = items
+      .filter((it: any) => typeof it?.dataUrl === 'string' && it.dataUrl.length > 0)
+      .map((it: any) => ({ src: it.dataUrl }));
+  }
+
+  private getPendingQueueKeysForPanel(panelId: string | number): string[] {
+    const prefix = `pendingImages:${panelId}:`;
+    const keys: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix)) keys.push(k);
+    }
+    return keys;
+  }
+
+  private async hydratePendingTotals(): Promise<void> {
+    const panelId = this.pennelinfo?.id;
+    if (!panelId) {
+      this.queuedTotalsByStep = [];
+      this.queuedTotalAllSteps = 0;
+      return;
+    }
+
+    const keys = this.getPendingQueueKeysForPanel(panelId);
+    const counts = new Map<string, number>();
+
+    for (const key of keys) {
+      const queue = this.readPendingQueue(key);
+      const stepId = String(queue?.stepId ?? key.split(':').pop() ?? '');
+      const items = Array.isArray(queue?.items) ? queue.items : [];
+      if (!stepId) continue;
+      const prev = counts.get(stepId) ?? 0;
+      counts.set(stepId, prev + items.length);
+    }
+
+    const list = Array.from(counts.entries())
+      .map(([stepId, count]) => ({ stepId, count }))
+      .sort((a, b) => Number(a.stepId) - Number(b.stepId));
+
+    this.queuedTotalsByStep = list;
+    this.queuedTotalAllSteps = list.reduce((sum, s) => sum + (Number(s.count) || 0), 0);
+  }
+
   private async uploadGalleryFiles(files: File[]) {
     if (!files.length) {
       return;
     }
-    const allowed = await this.locationPermission.ensureLocationAllowed({ showRationale: true });
-    if (!allowed) {
-      await this.presentToast('Location permission is needed to tag your photos.');
-      return;
-    }
-    await this.showLoading();
-    await this.refreshCoords();
-    const webpFiles = await this.convertFilesToWebp(files);
-    if (!webpFiles.length) {
-      await this.loadingController.dismiss();
-      await this.presentToast('Could not process selected images.');
-      return;
-    }
-    
-    const formData = new FormData();
-    for (const file of webpFiles) {
-      formData.append('file[]', file, file.name);
-    }
-    formData.append('id', String(this.pennelinfo.id));
-    formData.append('latitude', String(this.latitude));
-    formData.append('longitude', String(this.longitude));
-    formData.append('step_id', String(this.activeStep ?? ''));
-    this.http.post(GlobalConstants.multipleimages, formData).subscribe({
-      next: (data: any) => {
-        this.loadingController.dismiss();
-        if (data.status == '200') {
-          const image_list = data.data;
-          if (Array.isArray(image_list) && image_list.length) {
-            this.imagelist.push(...image_list);
-          }
-        } else {
-          this.presentToast('Image not upload please try agian later');
-        }
-      },
-      error: (err) => {
-        console.log(err);
-        this.loadingController.dismiss();
-        this.presentToast('Upload failed');
-      },
+    // const allowed = await this.locationPermission.ensureLocationAllowed({ showRationale: true });
+    // if (!allowed) {
+    //   await this.presentToast('Location permission is needed to tag your photos.');
+    //   return;
+    // }
+    await this.presentToast('Saving images locally. Please wait...');
+    const loading = await this.loadingController.create({
+      message: `Saving 0/${files.length} images...`,
+      spinner: 'bubbles',
     });
+    await loading.present();
+    try {
+      if (!this.pennelinfo?.id || this.activeStep == null || this.activeStep === '') {
+        await this.presentToast('Missing site/step details. Please try again.');
+        return;
+      }
+
+      const savedItems: any[] = [];
+      let skipped = 0;
+      const perImageErrors: string[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        loading.message = `Saving ${i + 1}/${files.length} images...`;
+        try {
+          const file = files[i];
+          // Store a downscaled JPEG (smaller Base64) to avoid localStorage/timeouts.
+          const dataUrl = await this.withTimeout(
+            this.fileToDownscaledJpegDataUrlForStorage(file),
+            this.perImageTimeoutMs,
+          );
+          savedItems.push({
+            dataUrl,
+            fileName: file.name,
+            mimeType: file.type || 'image/jpeg',
+            // Lat/Lng + watermark + 100KB compression will be applied on "Mark to Complete"
+            sizeBytes: file.size,
+          });
+        } catch (e) {
+          const file = files[i];
+          const msg = (e as any)?.message ? String((e as any).message) : String(e);
+          perImageErrors.push(msg);
+          console.log('Per-image save error', {
+            index: i,
+            fileName: file?.name,
+            mimeType: file?.type,
+            sizeBytes: file?.size,
+            error: msg,
+          });
+          skipped += 1;
+        }
+      }
+
+      if (!savedItems.length) {
+        const lastErr = perImageErrors.length ? perImageErrors[perImageErrors.length - 1] : '';
+        const reason = lastErr ? ` Last error: ${lastErr}` : '';
+        await this.presentToast(
+          `No image could be saved locally. This usually happens when the photo is too large for localStorage. Try smaller images or upload fewer images.${reason}`,
+        );
+        return;
+      }
+      if (skipped > 0) {
+        await this.presentToast(`Saved ${savedItems.length} image(s), skipped ${skipped} (save failed).`);
+      }
+
+      const queueKey = this.getPendingQueueKey();
+      if (!queueKey) {
+        await this.presentToast('Unable to queue images right now.');
+        return;
+      }
+
+      const existingQueue = this.readPendingQueue(queueKey);
+      const newItems = savedItems;
+
+      const isCoordValid = (v: any): boolean => Number.isFinite(Number(v)) && Number(v) !== 0;
+      const queuedLatitude = isCoordValid(this.latitude) ? Number(this.latitude) : null;
+      const queuedLongitude = isCoordValid(this.longitude) ? Number(this.longitude) : null;
+
+      const updatedQueue = {
+        panelId: this.pennelinfo.id,
+        stepId: String(this.activeStep ?? ''),
+        latitude: queuedLatitude,
+        longitude: queuedLongitude,
+        items: [...(existingQueue?.items ?? []), ...newItems],
+        updatedAt: Date.now(),
+      };
+
+      try {
+        localStorage.setItem(queueKey, JSON.stringify(updatedQueue));
+      } catch (e: any) {
+        console.log('localStorage.setItem failed', e);
+        await this.presentToast(
+          'Could not save images locally (storage limit). Try fewer images or use smaller photos.',
+        );
+        return;
+      }
+      this.imagelist = updatedQueue.items.map((it: any) => ({ src: it.dataUrl }));
+      await this.hydratePendingTotals();
+
+      await this.presentToast(`${newItems.length} image(s) saved locally. Upload when you mark complete.`);
+    } catch (e) {
+      console.log('Image processing error', e);
+      await this.presentToast('Image processing failed. Please try again.');
+    } finally {
+      await loading.dismiss();
+    }
   }
   
   async presentToast($msg) {
@@ -202,165 +438,140 @@ export class UploadimagePage implements OnInit {
   }
   async captureImage() {
     try {
+      // Fast path: let the native camera produce a base64 `dataUrl`.
+      // This avoids canvas resizing/encoding (slow on WebViews).
       const image = await Camera.getPhoto({
-        quality: 30,
+        quality: 20,
         allowEditing: false,
-        resultType: CameraResultType.Uri,
+        resultType: CameraResultType.DataUrl,
         source: CameraSource.Camera,
-      });
-      if (!image.webPath) {
+        // Reduce output size so the base64 is smaller (still validated below).
+        width: this.storageMaxDimension,
+        height: this.storageMaxDimension,
+      } as any);
+
+      const dataUrl: string | undefined = image?.dataUrl;
+      if (!dataUrl) {
         await this.presentToast('No image captured');
         return;
       }
-      const response = await fetch(image.webPath);
-      const sourceBlob = await response.blob();
-      const sourceFile = new File([sourceBlob], `camera-${Date.now()}.${this.getExtensionFromMime(sourceBlob.type)}`, {
-        type: sourceBlob.type || 'image/jpeg',
-      });
-      await this.uploadGalleryFiles([sourceFile]);
+
+      // Extract mime from `data:image/<mime>;base64,...`
+      const mimeMatch = dataUrl.match(/^data:(.*?);base64,/);
+      const mimeType = mimeMatch?.[1] || 'image/jpeg';
+      const extension = this.getExtensionFromMime(mimeType);
+      const fileName = `camera-${Date.now()}.${extension}`;
+      await this.uploadCameraDataUrlToQueue({ dataUrl, fileName, mimeType });
     } catch (err) {
       console.log(err);
       await this.presentToast('Camera cancelled or unavailable');
     }
   }
 
-  private async convertFilesToWebp(files: File[]): Promise<File[]> {
-    const converted = await Promise.all(files.map((file) => this.convertImageFileToWebp(file)));
-    return converted.filter((file): file is File => !!file);
-  }
+  private async uploadCameraDataUrlToQueue(input: { dataUrl: string; fileName: string; mimeType: string }) {
+    // Camera path already gives us a (hopefully) small JPEG/PNG.
+    // We only validate size to protect localStorage and keep your upload flow unchanged.
+    if (!this.pennelinfo?.id || this.activeStep == null || this.activeStep === '') {
+      await this.presentToast('Missing site/step details. Please try again.');
+      return;
+    }
 
-  private async convertImageFileToWebp(file: File): Promise<File | null> {
+    const bytes = this.estimateBytesFromDataUrl(input.dataUrl);
+    if (bytes > this.storageMaxBytes) {
+      await this.presentToast(
+        `Photo is too large for local storage. Try smaller photo size / fewer images. (Estimated ${Math.round(
+          bytes / 1024
+        )}KB)`,
+      );
+      return;
+    }
+
+    const queueKey = this.getPendingQueueKey();
+    if (!queueKey) {
+      await this.presentToast('Unable to queue images right now.');
+      return;
+    }
+
+    const existingQueue = this.readPendingQueue(queueKey);
+    const isCoordValid = (v: any): boolean => Number.isFinite(Number(v)) && Number(v) !== 0;
+    const queuedLatitude = isCoordValid(this.latitude) ? Number(this.latitude) : null;
+    const queuedLongitude = isCoordValid(this.longitude) ? Number(this.longitude) : null;
+
+    const updatedQueue = {
+      panelId: this.pennelinfo.id,
+      stepId: String(this.activeStep ?? ''),
+      latitude: queuedLatitude,
+      longitude: queuedLongitude,
+      items: [
+        ...(existingQueue?.items ?? []),
+        {
+          dataUrl: input.dataUrl,
+          fileName: input.fileName,
+          mimeType: input.mimeType,
+          sizeBytes: bytes,
+        },
+      ],
+      updatedAt: Date.now(),
+    };
+
     try {
-      const imageBitmap = await this.loadImageBitmap(file);
-      const canvas = document.createElement('canvas');
-      canvas.width = imageBitmap.width;
-      canvas.height = imageBitmap.height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        return null;
-      }
-      ctx.drawImage(imageBitmap, 0, 0);
-      this.drawBottomRightWatermark(ctx, canvas.width, canvas.height);
-      const webpBlob = await this.canvasToWebpBlob(canvas);
-      if (!webpBlob) {
-        return null;
-      }
-      const fileName = this.replaceExtensionWithWebp(file.name);
-      return new File([webpBlob], fileName, { type: 'image/webp' });
-    } catch (err) {
-      console.log('WebP conversion failed', err);
-      return null;
+      localStorage.setItem(queueKey, JSON.stringify(updatedQueue));
+    } catch (e: any) {
+      console.log('localStorage.setItem failed', e);
+      await this.presentToast('Could not save image locally (storage limit). Try fewer images or smaller photos.');
+      return;
     }
-  }
 
-  private drawBottomRightWatermark(ctx: CanvasRenderingContext2D, width: number, height: number): void {
-    const fontSize = Math.max(11, Math.round(width * 0.015));
-    const lineHeight = Math.round(fontSize * 1.35);
-    const paddingX = Math.max(10, Math.round(fontSize * 0.8));
-    const paddingY = Math.max(10, Math.round(fontSize * 0.8));
-    const maxTextWidth = Math.round(width * 0.5);
-    const sourceLines = this.getWatermarkLines();
-
-    ctx.save();
-    ctx.font = `600 ${fontSize}px Arial, sans-serif`;
-    const lines: string[] = [];
-    for (const line of sourceLines) {
-      const wrapped = this.wrapText(ctx, line, maxTextWidth);
-      for (const item of wrapped) {
-        lines.push(item);
-      }
-    }
-    const textWidth = lines.reduce((max, line) => Math.max(max, ctx.measureText(line).width), 0);
-    const boxWidth = textWidth + (paddingX * 2);
-    const boxHeight = (lines.length * lineHeight) + (paddingY * 2);
-    const x = Math.max(8, width - boxWidth - 16);
-    const y = Math.max(boxHeight + 8, height - 16);
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
-    ctx.fillRect(x, y - boxHeight, boxWidth, boxHeight);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.textBaseline = 'top';
-    lines.forEach((line, index) => {
-      const lineY = (y - boxHeight) + paddingY + (index * lineHeight);
-      ctx.fillText(line, x + paddingX, lineY);
-    });
-    ctx.restore();
-  }
-
-  private getWatermarkLines(): string[] {
-    const siteName = (this.pennelinfo?.name || '').toString().trim() || 'N/A';
-    const address = (this.pennelinfo?.person_address || '').toString().trim() || 'N/A';
-    const lat = Number.isFinite(Number(this.latitude)) ? Number(this.latitude).toFixed(6) : 'N/A';
-    const lng = Number.isFinite(Number(this.longitude)) ? Number(this.longitude).toFixed(6) : 'N/A';
-    const createdDate = this.formatCreatedDate(new Date());
-    return [
-      `Site: ${siteName}`,
-      `Address: ${address}`,
-      `Lat/Long: ${lat}, ${lng}`,
-      `Created: ${createdDate}`,
-    ];
-  }
-
-  private formatCreatedDate(date: Date): string {
-    const pad = (value: number) => value.toString().padStart(2, '0');
-    const day = pad(date.getDate());
-    const month = pad(date.getMonth() + 1);
-    const year = date.getFullYear();
-    const hour = pad(date.getHours());
-    const minute = pad(date.getMinutes());
-    return `${day}-${month}-${year} ${hour}:${minute}`;
-  }
-
-  private wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-    if (!text) {
-      return [''];
-    }
-    const words = text.split(/\s+/);
-    const lines: string[] = [];
-    let current = '';
-    for (const word of words) {
-      const candidate = current ? `${current} ${word}` : word;
-      if (ctx.measureText(candidate).width <= maxWidth) {
-        current = candidate;
-      } else {
-        if (current) {
-          lines.push(current);
-        }
-        current = word;
-      }
-    }
-    if (current) {
-      lines.push(current);
-    }
-    return lines.length ? lines : [text];
+    this.imagelist = updatedQueue.items.map((it: any) => ({ src: it.dataUrl }));
+    await this.hydratePendingTotals();
+    await this.presentToast('1 image saved locally. Upload when you mark complete.');
   }
 
   private loadImageBitmap(file: File): Promise<HTMLImageElement> {
+    // `createImageBitmap(file)` is unreliable on some WebViews/Cordova builds.
+    // Always decode via FileReader -> <img> to keep the pipeline working.
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = reader.result as string;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
+      try {
+        // Prefer ObjectURL decoding (faster + avoids extra base64 expansion).
+        const urlCreator = (window as any)?.URL;
+        const canCreateObjectUrl = !!urlCreator?.createObjectURL;
+        if (canCreateObjectUrl) {
+          const objectUrl = urlCreator.createObjectURL(file);
+          const img = new Image();
+          img.onload = () => {
+            try {
+              urlCreator.revokeObjectURL(objectUrl);
+            } catch {
+              // ignore
+            }
+            resolve(img);
+          };
+          img.onerror = (e) => {
+            try {
+              urlCreator.revokeObjectURL(objectUrl);
+            } catch {
+              // ignore
+            }
+            reject(e);
+          };
+          img.src = objectUrl;
+          return;
+        }
 
-  private canvasToWebpBlob(canvas: HTMLCanvasElement): Promise<Blob | null> {
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), 'image/webp', this.webpQuality);
+        // Fallback: FileReader -> base64 -> <img>
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = reader.result as string;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      } catch (e) {
+        reject(e);
+      }
     });
-  }
-
-  private replaceExtensionWithWebp(fileName: string): string {
-    const dotIdx = fileName.lastIndexOf('.');
-    if (dotIdx <= 0) {
-      return `${fileName}.webp`;
-    }
-    return `${fileName.substring(0, dotIdx)}.webp`;
   }
 
   private getExtensionFromMime(mimeType: string): string {
@@ -368,15 +579,28 @@ export class UploadimagePage implements OnInit {
     if (type.includes('png')) {
       return 'png';
     }
-    if (type.includes('webp')) {
-      return 'webp';
-    }
+    // Default everything else to JPG (we will convert to JPEG after).
     return 'jpg';
+  }
+
+  private withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(`Timeout after ${timeoutMs}ms`)), timeoutMs);
+      promise
+        .then((value) => {
+          clearTimeout(timer);
+          resolve(value);
+        })
+        .catch((err) => {
+          clearTimeout(timer);
+          reject(err);
+        });
+    });
   }
 
   async showLoading(){
     let loading = await this.loadingController.create({
-        message: "Uploading Please wait...",
+        message: "Processing images (<=100KB) ...",
         spinner: "bubbles"
     });
     await loading.present();

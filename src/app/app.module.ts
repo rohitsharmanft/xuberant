@@ -15,7 +15,6 @@ import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions
 import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { LocationAccuracy } from '@awesome-cordova-plugins/location-accuracy/ngx';
 import { NativeGeocoder } from '@awesome-cordova-plugins/native-geocoder/ngx';
-import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -23,7 +22,6 @@ import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     ImagePicker,
-    PhotoViewer,
     File,
     AndroidPermissions,
     Geolocation,
