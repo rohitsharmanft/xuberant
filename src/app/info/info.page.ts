@@ -250,6 +250,8 @@ export class InfoPage implements OnInit {
       .split(',')
       .map((s: string) => s.trim())
       .filter(Boolean);
+      this.permissionStep();
+      //console.log(this.activeStep);
   }
 // Pagination code
   private  getPageCount(): number {  
