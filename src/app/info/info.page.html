@@ -1,6 +1,6 @@
 <ion-content class="info-page" [fullscreen]="true">
   <div class="info-shell">
-    <div class="info-screen">
+    <div class="info-screen" *ngIf="this.pennelinfo.site_type == '1' || option != 'form'">
       <!-- <div class="info-hero">
         <img src="/assets/img/icon.png" alt="" />
       </div> -->
@@ -19,7 +19,7 @@
         </div>
 
        
-        <ion-button type="button" expand="block" class="info-btn-primary info-btn-site btn-site-info" (click)="nextpage('siteinfo')">
+        <ion-button type="button" expand="block" class="info-btn-primary info-btn-site btn-site-info" (click)="nextpage('siteinfo')" >
           Site info
         </ion-button>
       </div>
@@ -126,7 +126,7 @@
             </table>
           </div>
 
-          <div class="info-data-card" *ngFor="let group of additionalItems">
+          <!-- <div class="info-data-card" *ngFor="let group of additionalItems">
             <h3 class="info-data-card-title">{{ group.name || 'Additional Items' }}</h3>
             <table class="info-table">
               <tr><th>Title</th><th>Quantity</th></tr>
@@ -135,7 +135,7 @@
                 <td>{{ item.quantity }}</td>
               </tr>
             </table>
-          </div>
+          </div> -->
         </div>
 
         <div class="info-fields-shell" *ngIf="isSiteTypeTwo">
@@ -195,8 +195,6 @@
           <div class="info-data-card" *ngIf="lst.type == 'scan'">
             <table class="info-table">
               <tr><th>Serial number</th><td>{{ lst.content }}</td></tr>
-              <tr><th>Item</th><td>{{ lst.stockinfo.item_name }}</td></tr>
-              <tr><th>Scan date</th><td>{{ lst.created_at }}</td></tr>
             </table>
           </div>
 

@@ -5,7 +5,6 @@ import { Router,ActivatedRoute } from '@angular/router'
 import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@awesome-cordova-plugins/native-geocoder/ngx';
-import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { LocationPermissionService } from '../services/location-permission.service';
 import { firstValueFrom } from 'rxjs';
 import { normalizeCivilItems, normalizeInstallationItems } from '../../common/php-unserialize';
@@ -47,6 +46,7 @@ export class InfoPage implements OnInit {
   lightbox:any;
   installationItems: { title: string; quantity: string }[] = [];
   additionalItems: { name: string; items: { title: string; quantity: string }[] }[] = [];
+  requestedStepId: any;
   nativeGeocoderOptions: NativeGeocoderOptions = {
     useLocale: true,
     maxResults: 5
@@ -54,7 +54,7 @@ export class InfoPage implements OnInit {
   get isSiteTypeTwo(): boolean {
     return Number(this.pennelinfo?.site_type) === 2;
   }
-  constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public toastController: ToastController, private loadingController: LoadingController,private geolocation: Geolocation,private nativeGeocoder: NativeGeocoder,private photoViewer: PhotoViewer, private locationPermission: LocationPermissionService) {
+  constructor(private router: Router, private activatedRoute : ActivatedRoute, public http: HttpClient,public toastController: ToastController, private loadingController: LoadingController,private geolocation: Geolocation,private nativeGeocoder: NativeGeocoder, private locationPermission: LocationPermissionService) {
     /* Do not request geolocation on construct — it can steal the first tap/gesture (Site info etc.). Use “Get location” instead. */
    }
 
@@ -64,25 +64,35 @@ export class InfoPage implements OnInit {
 		}
     this.logininfo = JSON.parse(localStorage.getItem('authlogin'))
     this.pennelinfo = JSON.parse(localStorage.getItem('panel'))
+   
     this.hydrateSiteItemsFromPanel()
     this.hydrateContactFromPanel()
     if(this.pennelinfo.status == 'S'){
       this.option = 'view'
     }
+    this.activatedRoute.queryParams.subscribe((params) => {
+      this.requestedStepId = params?.activeid;
+      if (this.data?.length) {
+        this.applyRequestedStepFromData();
+      }
+    });
     this.getcontent()
   }
   async ionViewWillEnter() { 
     if(this.sendstep != undefined) {
       this.getPagecontent(this.pennelinfo.id,this.sendstep)
     }
-    const resp = await this.geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 0
-    });
-
-    this.latitude = resp.coords.latitude;
-    this.longitude = resp.coords.longitude;
+    try {
+      const resp = await this.geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      });
+      this.latitude = resp.coords.latitude;
+      this.longitude = resp.coords.longitude;
+    } catch (error) {
+      console.log('Error getting location on info enter', error);
+    }
   }
   submitform(){
 
@@ -200,6 +210,7 @@ export class InfoPage implements OnInit {
           this.activeStep = (currentValue.permission).split(',')
         }
       });
+      this.applyRequestedStepFromData();
       /* No step marked in progress yet — still need a step id for API calls */
       if ((this.sendstep == null || this.sendstep === '') && this.data?.length) {
         this.sendstep = this.data[0].step_id;
@@ -222,6 +233,23 @@ export class InfoPage implements OnInit {
 			console.log(error);
 		});
    
+  }
+
+  private applyRequestedStepFromData(): void {
+    if (!this.data?.length || this.requestedStepId == null || this.requestedStepId === '') {
+      return;
+    }
+    const requestedId = String(this.requestedStepId);
+    const requestedIndex = this.data.findIndex((step: any) => String(step?.step_id) === requestedId);
+    if (requestedIndex < 0) {
+      return;
+    }
+    this.activePage = requestedIndex + 1;
+    this.sendstep = this.data[requestedIndex].step_id;
+    this.activeStep = String(this.data[requestedIndex].permission ?? '')
+      .split(',')
+      .map((s: string) => s.trim())
+      .filter(Boolean);
   }
 // Pagination code
   private  getPageCount(): number {  
@@ -448,6 +476,7 @@ private async getAddressFromHttpFallback(lat: number, long: number): Promise<str
   }
 
   viewImage(path,img) {
-    this.photoViewer.show(path+img);
+    const url = `${path ?? ''}${img ?? ''}`;
+    window.open(url, '_blank');
   }
 }

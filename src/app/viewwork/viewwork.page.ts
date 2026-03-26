@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router'
 import{ GlobalConstants } from '../../common/global-constants';
-import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 
 @Component({
   selector: 'app-viewwork',
@@ -14,7 +13,7 @@ export class ViewworkPage implements OnInit {
   pennelinfo: any = ''
   daylist: any =''
   imageurl: any =''
-  constructor(private router: Router,public http: HttpClient,private photoViewer: PhotoViewer) { }
+  constructor(private router: Router,public http: HttpClient) { }
 
   ngOnInit() {
     if(localStorage.getItem('authlogin') == '' || localStorage.getItem('authlogin') == null){
@@ -33,6 +32,7 @@ export class ViewworkPage implements OnInit {
   }
    //View only photo 
   viewPhoto(img){
-    this.photoViewer.show(this.imageurl+img);
+    const url = `${this.imageurl || ''}${img ?? ''}`;
+    window.open(url, '_blank');
   }
 }

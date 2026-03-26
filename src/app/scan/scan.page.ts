@@ -24,7 +24,7 @@ export class ScanPage implements OnInit {
   scancode: any=''
   getlists: any =''
   activeStep: any
-  constructor(private activatedRoute: ActivatedRoute,public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation, private platform: Platform) {
+  constructor(private router: Router, private activatedRoute: ActivatedRoute,public http: HttpClient,public toastController: ToastController,private geolocation: Geolocation, private platform: Platform) {
     this.geolocation.getCurrentPosition().then((resp) => {
       this.latitude = resp.coords.latitude;
       this.longitude = resp.coords.longitude;
@@ -126,5 +126,11 @@ export class ScanPage implements OnInit {
 
   back(){
     this.option = 'NO'
+  }
+  goToInfoStep() {
+    const activeid = this.activeStep;
+    void this.router.navigate(['/info'], {
+      queryParams: { activeid: activeid != null && activeid !== '' ? parseInt(activeid) + 1 : '' },
+    });
   }
 }

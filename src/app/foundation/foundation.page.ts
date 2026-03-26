@@ -17,7 +17,7 @@ export class FoundationPage implements OnInit {
   latitude: any = 0; //latitude
   longitude: any = 0; //longitude
   activeStep: any
-  constructor(private activatedRoute: ActivatedRoute,public toastController: ToastController,private geolocation: Geolocation, private http: HttpClient) { 
+  constructor(private router: Router,private activatedRoute: ActivatedRoute,public toastController: ToastController,private geolocation: Geolocation, private http: HttpClient) { 
     this.getlocation()
   }
 
@@ -87,5 +87,11 @@ export class FoundationPage implements OnInit {
      }).catch((error) => {
        console.log('Error getting location', error);
      });
+  }
+  goToInfoStep() {
+    const activeid = this.activeStep;
+    void this.router.navigate(['/info'], {
+      queryParams: { activeid: activeid != null && activeid !== '' ? parseInt(activeid) + 1 : '' },
+    });
   }
 }
