@@ -1,4 +1,5 @@
 <ion-content>
+  <div style="height:10px"></div>
   <div class="stepper-header">
     <div class="step-progress">
       <div class="step-item" [class.active]="currentStep >= 1">
@@ -82,7 +83,7 @@
         <div class="input-group">
           <label>Company</label>
           <ion-item lines="none" class="custom-item-wrapper">
-            <ion-select [(ngModel)]="siteForm.companyId" placeholder="Select Company" class="select-custom-list">
+            <ion-select [(ngModel)]="siteForm.companyId" class="select-custom-list" label ='Select Company'>
               <ion-select-option *ngFor="let co of companies" [value]="co.id">
                 {{ co.project }}
               </ion-select-option>
@@ -93,7 +94,7 @@
         <div class="input-group">
           <label>Type</label>
           <ion-item lines="none" class="custom-item-wrapper">
-            <ion-select [(ngModel)]="siteForm.type" placeholder="Select Type">
+            <ion-select [(ngModel)]="siteForm.type" label="Select Type">
               <ion-select-option *ngFor="let t of siteTypes | keyvalue" [value]="t.key">
                 {{ t.value }}
               </ion-select-option>
@@ -120,15 +121,15 @@
         <p class="section-label">Installation Items Details</p>
         
         <div *ngFor="let item of siteForm.installationItems; let i = index" class="compact-grid-row">
-          <div class="flex-3">
-            <ion-item class="brand-item-wrapper" lines="none">
-              <ion-select [(ngModel)]="item.category" placeholder="Select Item">
-                <ion-select-option *ngFor="let option of installItems" [value]="option.id">
-                  {{ option.item }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
+  <div class="flex-3">
+    <ion-item class="brand-item-wrapper" lines="none">
+      <ion-select [(ngModel)]="item.category" label="Select Item">
+        <ion-select-option *ngFor="let option of filteredInstallItems" [value]="option.id">
+          {{ option.item }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </div>
 
           <ion-input type="number" [(ngModel)]="item.quantity" placeholder="Qty" class="flex-1 qty-input"></ion-input>
           
@@ -138,9 +139,9 @@
           <div *ngIf="i === 0" style="width: 48px;"></div> 
         </div>
 
-        <ion-button (click)="addInstallationItem()" expand="block" class="add-btn-yellow" fill="solid">
-          + Add More
-        </ion-button>
+        <ion-button (click)="addInstallationItem()" class="mini-add-btn yellow" fill="solid">
+  + Add More
+</ion-button>
       </div>
 
       <div class="section-container additional-box">
@@ -149,12 +150,19 @@
         <div *ngFor="let cat of siteForm.additionalItems; let catIdx = index" class="category-wrapper">
           <div class="category-header">
             <div style="width: 100%; position: relative;">
-              <ion-input 
-                [(ngModel)]="cat.categoryName" 
-                placeholder="Enter additional name" 
-                (ionInput)="onAdditionalCategoryInput($event, catIdx)"
-                class="cat-name-input">
-              </ion-input>
+             <ion-input 
+      [(ngModel)]="cat.categoryName" 
+      placeholder="Enter additional name" 
+      (ionInput)="onAdditionalCategoryInput($event, catIdx)"
+      class="cat-name-input">
+    </ion-input>
+
+    <ion-list class="suggestion-list" *ngIf="cat.searchResults?.length > 0">
+      <ion-item *ngFor="let result of cat.searchResults" (click)="selectCivilCategory(result, catIdx)" button="true">
+        <ion-label>{{ result.label }}</ion-label>
+      </ion-item>
+    </ion-list>
+              
             </div>
             
             <ion-icon *ngIf="catIdx > 0" name="close-circle" color="danger" (click)="removeAdditionalCategory(catIdx)"></ion-icon>
@@ -173,16 +181,15 @@
           <p class="add-inner-link" (click)="addItemToCategory(catIdx)">+ Add Item Row</p>
         </div>
 
-        <ion-button (click) ="addAdditionalCategory()" expand="block" class="add-btn-green" fill="solid">
-          + Add New 
-        </ion-button>
+        <ion-button (click)="addAdditionalCategory()" class="mini-add-btn green" fill="solid">
+  + ADD NEW
+</ion-button>
       </div>
 
       <div style="height: 100px;"></div>
     </div>
     <div *ngIf="currentStep === 4">
   <h2 class="title">SITE ALREADY EXISTS</h2>
-  <p class="subtitle">> Assign this site to yourself</p>
 
   <div class="section-container" style="border-left: 5px solid var(--app-color-brand);">
     <h3 style="color: var(--app-color-brand); margin-top: 0;">{{ siteForm.selectedCustomer.siteInfo.name }}</h3>
