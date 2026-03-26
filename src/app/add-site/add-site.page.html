@@ -1,13 +1,275 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>add-site</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <div class="stepper-header">
+    <div class="step-progress">
+      <div class="step-item" [class.active]="currentStep >= 1">
+        <div class="node">1</div>
+        <p>Select Customer</p>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item" [class.active]="currentStep >= 2">
+        <div class="node">2</div>
+        <p>Site & Schedule</p>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item" [class.active]="currentStep >= 3">
+        <div class="node">3</div>
+        <p>Items & Details</p>
+      </div>
+    </div>
+  </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">add-site</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="content-card">
+    
+    <div *ngIf="currentStep === 1">
+      
+      <ion-searchbar 
+        mode="md" 
+        placeholder="Search Customer UCID..."
+        (ionInput)="onSearchInput($event)"
+        [(ngModel)]="siteForm.searchQuery"
+        [debounce]="0">
+      </ion-searchbar>
+
+      <div *ngIf="isSearching" class="brand-loader-container ion-text-center ion-padding">
+        <ion-spinner name="crescent" class="brand-loader"></ion-spinner>
+        <p class="brand-loader-text">Searching...</p>
+      </div>
+
+      <ion-list lines="none">
+        <ion-item *ngFor="let customer of customers" (click)="selectCustomer(customer)" class="list-card" button="true">
+          <ion-avatar slot="start" class="brand-avatar-bg">
+            <ion-icon name="person-circle" class="brand-icon"></ion-icon>
+          </ion-avatar>
+          
+          <ion-label>
+            <h3>{{ customer.person_name }}</h3>
+            
+            <p class="customer-detail">
+              <ion-icon name="finger-print-outline" class="detail-icon"></ion-icon>
+              <span class="ucid-label">UCID:</span> {{ customer.ucid }}
+            </p>
+            
+            <p class="customer-detail">
+              <ion-icon name="location-outline" class="detail-icon"></ion-icon>
+              {{ customer.person_address }}
+            </p>
+            
+            <p class="customer-detail small">
+              <ion-icon name="call-outline" class="detail-icon"></ion-icon> 
+              {{ customer.person_phone }}
+            </p>
+          </ion-label>
+          
+          <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
+        </ion-item>
+
+        <div *ngIf="customers?.length === 0 && !isSearching" class="ion-text-center ion-padding">
+          <p style="color: #999;">No customers found. Start typing to search...</p>
+        </div>
+      </ion-list>
+    </div>
+
+    <div *ngIf="currentStep === 2">
+      <h2 class="title">NEW INSTALLATION</h2>
+
+      
+      <div class="branded-form">
+        <div class="input-group">
+          <label>Site Name</label>
+          <ion-input [(ngModel)]="siteForm.siteName" placeholder="eg. Headquarters" class="custom-input"></ion-input>
+        </div>
+      
+        <div class="input-group">
+          <label>Company</label>
+          <ion-item lines="none" class="custom-item-wrapper">
+            <ion-select [(ngModel)]="siteForm.companyId" placeholder="Select Company" class="select-custom-list">
+              <ion-select-option *ngFor="let co of companies" [value]="co.id">
+                {{ co.project }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <div class="input-group">
+          <label>Type</label>
+          <ion-item lines="none" class="custom-item-wrapper">
+            <ion-select [(ngModel)]="siteForm.type" placeholder="Select Type">
+              <ion-select-option *ngFor="let t of siteTypes | keyvalue" [value]="t.key">
+                {{ t.value }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+        
+      <div class="input-group">
+  <label>Installation Date</label>
+  <ion-item lines="none" class="custom-item-wrapper" (click)="dateModal.present()" button="true" detail="false">
+    <ion-text class="selected-date-text">
+      {{ siteForm.installationDate | date: 'dd MMM yyyy' }}
+    </ion-text>
+    <ion-icon name="calendar-outline" slot="end" class="calendar-icon"></ion-icon>
+  </ion-item>
+</div>
+      </div>
+    </div>
+
+    <div *ngIf="currentStep === 3">
+      <h2 class="title">STEP 3: ITEMS & DETAILS</h2>
+      
+      <div class="section-container">
+        <p class="section-label">Installation Items Details</p>
+        
+        <div *ngFor="let item of siteForm.installationItems; let i = index" class="compact-grid-row">
+          <div class="flex-3">
+            <ion-item class="brand-item-wrapper" lines="none">
+              <ion-select [(ngModel)]="item.category" placeholder="Select Item">
+                <ion-select-option *ngFor="let option of installItems" [value]="option.id">
+                  {{ option.item }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <ion-input type="number" [(ngModel)]="item.quantity" placeholder="Qty" class="flex-1 qty-input"></ion-input>
+          
+          <ion-button *ngIf="i > 0" fill="clear" color="danger" (click)="removeInstallationItem(i)" class="action-btn">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+          <div *ngIf="i === 0" style="width: 48px;"></div> 
+        </div>
+
+        <ion-button (click)="addInstallationItem()" expand="block" class="add-btn-yellow" fill="solid">
+          + Add More
+        </ion-button>
+      </div>
+
+      <div class="section-container additional-box">
+        <p class="section-label">Additional Items</p>
+        
+        <div *ngFor="let cat of siteForm.additionalItems; let catIdx = index" class="category-wrapper">
+          <div class="category-header">
+            <div style="width: 100%; position: relative;">
+              <ion-input 
+                [(ngModel)]="cat.categoryName" 
+                placeholder="Enter additional name" 
+                (ionInput)="onAdditionalCategoryInput($event, catIdx)"
+                class="cat-name-input">
+              </ion-input>
+            </div>
+            
+            <ion-icon *ngIf="catIdx > 0" name="close-circle" color="danger" (click)="removeAdditionalCategory(catIdx)"></ion-icon>
+          </div>
+       
+          <div *ngFor="let row of cat.items; let rowIdx = index" class="compact-grid-row nested-row">
+            <ion-input [(ngModel)]="row.itemName" placeholder="Item Name" class="flex-3"></ion-input>
+            <ion-input type="number" [(ngModel)]="row.quantity" placeholder="Qty" class="flex-1 qty-input"></ion-input>
+            
+            <ion-button *ngIf="rowIdx > 0" fill="clear" color="danger" (click)="removeItemFromCategory(catIdx, rowIdx)" class="action-btn">
+              <ion-icon name="trash-outline" style="font-size: 20px;"></ion-icon>
+            </ion-button>
+            <div *ngIf="rowIdx === 0" style="width: 48px;"></div>
+          </div>
+          
+          <p class="add-inner-link" (click)="addItemToCategory(catIdx)">+ Add Item Row</p>
+        </div>
+
+        <ion-button (click) ="addAdditionalCategory()" expand="block" class="add-btn-green" fill="solid">
+          + Add New 
+        </ion-button>
+      </div>
+
+      <div style="height: 100px;"></div>
+    </div>
+    <div *ngIf="currentStep === 4">
+  <h2 class="title">SITE ALREADY EXISTS</h2>
+  <p class="subtitle">> Assign this site to yourself</p>
+
+  <div class="section-container" style="border-left: 5px solid var(--app-color-brand);">
+    <h3 style="color: var(--app-color-brand); margin-top: 0;">{{ siteForm.selectedCustomer.siteInfo.name }}</h3>
+    
+    <p><strong>Customer:</strong> {{ siteForm.selectedCustomer.person_name }}</p>
+    <p><strong>Address:</strong> {{ siteForm.selectedCustomer.siteInfo.person_address }}</p>
+    <p><strong>Created:</strong> {{ siteForm.selectedCustomer.siteInfo.ndate }}</p>
+  </div>
+
+  <div class="section-container">
+    <p class="section-label">Installation Items</p>
+    <ion-list lines="none">
+      <ion-item *ngFor="let item of siteForm.selectedCustomer.siteInfo.installation_item">
+        <ion-label>
+          {{ item.title }}
+          <span  style="float: right;">Qty: {{ item.quantity }}</span>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <div class="section-container" *ngFor="let cat of siteForm.selectedCustomer.siteInfo.content_civilitem">
+    <p class="section-label">Additional: {{ cat.name }}</p>
+    <ion-list lines="none">
+      <ion-item *ngFor="let row of cat.items">
+        <ion-label>
+          {{ row.title }}
+          <span   style="float: right;">Qty: {{ row.quantity }}</span>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <ion-button expand="block" class="btn-brand-primary" (click)="selfAssignSite()" style="margin-top: 20px; --height: 50px;">
+    SELF ASSIGN THIS SITE
+  </ion-button>
+  
+  <ion-button expand="block" fill="clear" color="medium" (click)="currentStep = 1">
+    GO BACK
+  </ion-button>
+</div>
+  </div>
+
+ <ion-modal #dateModal class="center-picker-modal">
+  <ng-template>
+    <ion-datetime
+      #datetime
+      presentation="date"
+      [(ngModel)]="siteForm.installationDate"
+      size="cover">
+      
+      <ion-buttons slot="buttons">
+        <ion-button color="medium" (click)="dateModal.dismiss()">Cancel</ion-button>    
+        <ion-button class="btn-confirm-brand" (click)="datetime.confirm(); dateModal.dismiss()">Confirm</ion-button>
+      </ion-buttons>
+    </ion-datetime>
+  </ng-template>
+</ion-modal>
+
 </ion-content>
+
+<ion-footer class="ion-no-border">
+  <ion-toolbar class="footer-toolbar">
+    <div class="footer-btn-container">
+      
+      <ion-button 
+       *ngIf="currentStep > 1 && currentStep !== 4"
+        (click)="prevStep()" 
+        fill="solid" 
+        class="btn-brand-primary">
+        ← PREVIOUS
+      </ion-button>
+      
+      <ion-button 
+        *ngIf="currentStep === 2" 
+        (click)="nextStep()" 
+        class="btn-brand-primary">
+        NEXT →
+      </ion-button>
+      
+      <ion-button 
+        *ngIf="currentStep === 3" 
+        (click)="submitForm()" 
+        class="btn-brand-primary">
+        SUBMIT
+      </ion-button>
+
+    </div>
+  </ion-toolbar>
+</ion-footer>

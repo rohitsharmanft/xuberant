@@ -1,0 +1,319 @@
+.stepper-header {
+  background: var(--app-color-brand);  
+  padding: 20px 10px 50px;
+  
+  .step-progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .step-item {
+    text-align: center;
+    color: white;
+    opacity: 0.6;
+    &.active { opacity: 1; .node { background: white; color: var(--app-color-brand); } }
+    .node {
+      width: 30px; height: 30px; border-radius: 50%; border: 2px solid white;
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 5px;
+    }
+    p { font-size: 0.7rem; margin: 0; }
+  }
+  .step-line { width: 40px; height: 2px; background: rgba(255,255,255,0.4); margin-bottom: 15px; }
+}
+
+.content-card {
+  background: #fffaec; 
+  border-radius: 30px 30px 0 0;
+  margin-top: -30px;
+  padding: 20px;
+  min-height: 80vh;
+}
+
+.title { font-weight: 800; color: #333; font-size: 1.4rem; }
+.subtitle { font-weight: bold; color: #444; margin: 15px 0; }
+
+.list-card {
+  --background: white;
+  --border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+
+.brand-button {
+  --background: #00aced; /* Matches the 'Next' blue in your sample, or use var(--app-color-brand) */
+  --border-radius: 25px;
+  height: 50px;
+  flex: 1;
+}
+
+.add-btn-yellow {
+  --background: #ffc409;
+  --color: #333;
+  --border-radius: 20px;
+  font-weight: bold;
+}/* Step 3 Section Containers */
+.section-container {
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  
+  .section-label {
+    font-weight: bold;
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+}
+
+/* Compact Grid Rows - Puts inputs in a single line */
+.compact-grid-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  
+  .flex-3 { flex: 3; }
+  .flex-1 { flex: 1.2; }
+  
+  ion-input, ion-select {
+    --background: #f4f5f8;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.9rem;
+    --padding-start: 10px;
+    min-height: 40px;
+  }
+  
+  .qty-input { text-align: center; }
+  
+  ion-icon { font-size: 1.4rem; }
+}
+
+/* Additional Category "Box inside Box" */
+.category-wrapper {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 15px;
+  background: #fafafa;
+
+  .category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed #ddd;
+    
+    ion-input {
+      font-weight: bold;
+      color: var(--app-color-brand);
+      --background: transparent;
+      border: none;
+    }
+  }
+}
+
+.add-inner-link {
+  color: #00aced;
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-align: right;
+  margin: 5px 0 0;
+  cursor: pointer;
+}
+
+.add-btn-green {
+  --background: #2dd36f;
+  --border-radius: 10px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.bottom-spacer { height: 100px; }
+.cat-name-input {
+  font-weight: 800;
+  color: #000000 !important; 
+  --padding-start: 0;
+
+ 
+  &::placeholder {
+    color: #999;  
+    font-weight: 400;
+    opacity: 0.7;
+  }
+}
+
+ 
+ 
+.center-picker-modal {
+ 
+  --width: 90%; 
+  --max-width: 330px;
+  --height: fit-content;
+  --border-radius: 16px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+
+.center-picker-modal::part(content) {
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  margin: auto;
+}
+
+ .calendar-icon {
+  color: var(--app-color-brand);
+}
+.branded-form {
+  margin-top: 10px;
+
+  .input-group {
+    margin-bottom: 25px; // Increased vertical spacing between fields
+    
+    label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 8px;
+      margin-left: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Target both inputs and select wrappers */
+    .custom-input, .custom-item-wrapper {
+      --background: #ffffff;
+      background: #ffffff;
+      --placeholder-color: #666;
+      border: 2px solid #e0e0e0; // Visible border
+      border-radius: 12px;
+      --padding-start: 15px;
+      min-height: 50px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+
+      /* Highlight border on focus/interaction */
+      &:focus-within {
+        border-color: var(--app-color-brand);
+        box-shadow: 0 4px 12px rgba(var(--app-color-brand-rgb), 0.1);
+      }
+    }
+
+    /* Fix for Select specifically */
+    .custom-item-wrapper {
+      ion-select {
+        width: 100%;
+        padding: 0;
+        --placeholder-color: #666;
+      }
+    }
+    
+    .selected-date-text {
+      font-weight: 500;
+      color: #333;
+    }
+  }
+}
+ .btn-brand-primary {
+  --background: var(--app-color-brand) !important;
+}
+ 
+.brand-avatar-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  
+ 
+  background: color-mix(in srgb, var(--app-color-brand), transparent 85%);
+}
+.brand-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+
+  .brand-loader {
+    // This forces the spinner to use your orange brand variable
+    --color: var(--app-color-brand); 
+    width: 45px;
+    height: 45px;
+  }
+
+  .brand-loader-text {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    // This makes the text match the spinner color
+    color: var(--app-color-brand); 
+    letter-spacing: 0.3px;
+  }
+}
+/* Footer Container */
+.footer-btn-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Forces 50/50 split */
+  gap: 10px; 
+  padding: 12px 16px;
+  width: 100%;
+}
+
+/* Button Styles (Matching the info-page-nav style) */
+.btn-brand-primary {
+  --background: #f6874f; /* The orange color from your new CSS */
+  --color: #fffaec;
+  --border-radius: 5px;
+  --box-shadow: 0 2px 8px rgba(95, 49, 40, 0.2);
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.875rem;
+  height: 28px; /* Standard comfortable height */
+}ion-modal {
+  --height: auto;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+  --backdrop-opacity: var(--ion-backdrop-opacity, 0.32);
+}
+
+ion-datetime {
+  background: #ffffff;
+  border-radius: 16px;
+}
+.suggestion-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-height: 200px;
+  overflow-y: auto;
+
+  ion-item {
+    --padding-start: 10px;
+    --min-height: 40px;
+    font-size: 0.9rem;
+  }
+}
+.btn-confirm-brand {
+   --color: var(--app-color-brand) !important;
+
+}
+.customer-title {
+  font-size: 18px;
+}
+.select-wrapper-inner {
+    justify-content: space-between !important; 
+    width: 100% !important;
+}
