@@ -609,4 +609,11 @@ export class UploadimagePage implements OnInit {
   trackByImage(index: number): number {
     return index;
   }
+
+  goToInfoStep() {
+    const activeid = this.activeStep;
+    void this.router.navigate(['/info'], {
+      queryParams: { activeid: activeid != null && activeid !== '' ? parseInt(activeid) + 1 : '' },
+    });
+  }
 }

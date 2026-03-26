@@ -34,3 +34,22 @@
 ion-app ion-router-outlet ion-content.info-page {
 	--padding-top: 20px !important;
 }
+.ion-next-button-content {
+    position: fixed;
+    left: unset;
+    right: 0;
+    bottom: 0%;
+    display: grid;
+    box-sizing: border-box;
+    z-index: 10;
+}
+.custom-button-next {
+	--background: #f6874f;
+    --background-activated: #4a261f;
+    --color: #fffaec;
+    --border-radius: 5px;
+    --box-shadow: 0 2px 8px rgba(95, 49, 40, 0.2);
+    margin: 0;
+    font-weight: 700;
+    font-size: 0.875rem;
+}

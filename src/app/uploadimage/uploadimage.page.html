@@ -16,7 +16,7 @@
       </div>
       
     </ion-col>
-    <ion-col size="12">
+    <ion-col size="12" *ngIf="this.pennelinfo.gallery == '1'">
       <div class='gallery-image'>
         <input type="file" accept=".jpg,.jpeg,.png,image/*" id="fileInput" multiple (change)="onGalleryChange($event)" />
          <label for="fileInput"  class="galleryImage">
@@ -35,6 +35,15 @@
       <div *ngFor="let item of imagelist; trackBy: trackByImage" class="image-box">
         <img [src]="item?.src" class="list-image">
       </div>  
+    </ion-col>
+  </ion-row>
+
+  <ion-row class="ion-justify-content-center ion-padding ion-next-button-content">
+    <ion-col size="12">
+      <ion-button expand="block" class="custom-button-next" (click)="goToInfoStep()">
+        Next
+        <ion-icon name="arrow-forward" slot="end"></ion-icon>
+      </ion-button>
     </ion-col>
   </ion-row>
 </ion-content>

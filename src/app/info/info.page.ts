@@ -46,6 +46,7 @@ export class InfoPage implements OnInit {
   lightbox:any;
   installationItems: { title: string; quantity: string }[] = [];
   additionalItems: { name: string; items: { title: string; quantity: string }[] }[] = [];
+  requestedStepId: any;
   nativeGeocoderOptions: NativeGeocoderOptions = {
     useLocale: true,
     maxResults: 5
@@ -63,6 +64,7 @@ export class InfoPage implements OnInit {
 		}
     this.logininfo = JSON.parse(localStorage.getItem('authlogin'))
     this.pennelinfo = JSON.parse(localStorage.getItem('panel'))
+   
     this.hydrateSiteItemsFromPanel()
     this.hydrateContactFromPanel()
     if(this.pennelinfo.status == 'S'){
@@ -82,6 +84,12 @@ export class InfoPage implements OnInit {
 
     this.latitude = resp.coords.latitude;
     this.longitude = resp.coords.longitude;
+    this.activatedRoute.queryParams.subscribe((params) => {
+      this.requestedStepId = params?.activeid;
+      //alert(this.requestedStepId);
+      this.activeStep = this.requestedStepId;
+      this.onClickPage(this.requestedStepId);
+    });
   }
   submitform(){
 
@@ -199,6 +207,18 @@ export class InfoPage implements OnInit {
           this.activeStep = (currentValue.permission).split(',')
         }
       });
+      if (this.requestedStepId != null && this.requestedStepId !== '') {
+        const requestedId = String(this.requestedStepId);
+        const requestedIndex = this.data.findIndex((step: any) => String(step?.step_id) === requestedId);
+        if (requestedIndex >= 0) {
+          this.activePage = requestedIndex + 1;
+          this.sendstep = this.data[requestedIndex].step_id;
+          this.activeStep = String(this.data[requestedIndex].permission ?? '')
+            .split(',')
+            .map((s: string) => s.trim())
+            .filter(Boolean);
+        }
+      }
       /* No step marked in progress yet — still need a step id for API calls */
       if ((this.sendstep == null || this.sendstep === '') && this.data?.length) {
         this.sendstep = this.data[0].step_id;
