@@ -7,6 +7,7 @@ import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { Location } from '@angular/common'
 import { File as CordovaFile } from '@awesome-cordova-plugins/file/ngx';
 import { firstValueFrom } from 'rxjs';
+import { Network } from '@capacitor/network';
 
 @Component({
   selector: 'app-mark',
@@ -100,7 +101,8 @@ export class MarkPage implements OnInit {
     );
   }
   async sendOTP(){
-
+    
+   // return false;
     let loader = await this.loadingController.create({
       message: `Please wait...`,
       spinner: 'bubbles',
@@ -114,6 +116,7 @@ export class MarkPage implements OnInit {
 			if(data.status == 200){
         this.option = 'view'
         void this.submitform()
+        void loader.dismiss();
 			}
 		}, error => {
 			console.log(error);
@@ -181,6 +184,59 @@ export class MarkPage implements OnInit {
     });
   }
 
+  private async isAllowedNetworkForMarkComplete(): Promise<boolean> {
+    // Basic connectivity check.
+    this.lastImageUploadError = '';
+
+  const status = await Network.getStatus();
+
+    if (!status.connected) {
+      this.lastImageUploadError = 'No internet connection.';
+      return false;
+    }
+
+    const navAny: any = navigator as any;
+    const connection =
+      navAny?.connection || navAny?.mozConnection || navAny?.webkitConnection;
+
+    // Fallback: if detailed speed info is unavailable, allow upload when connected.
+    if (!connection) {
+      return true;
+    }
+
+    const effectiveType = String(connection.effectiveType || '').toLowerCase();
+    const type = String(connection.type || '').toLowerCase();
+    const downlink = Number(connection.downlink || 0); // Mbps
+    const rtt = Number(connection.rtt || 0); // ms
+    const saveData = Boolean(connection.saveData);
+
+    if (saveData) {
+      this.lastImageUploadError =
+        'Data saver is enabled. Image upload may be slow.';
+    }
+
+    // Block clearly weak networks
+    if (effectiveType === 'slow-2g' || effectiveType === '2g') {
+      this.lastImageUploadError =
+        'Network is too weak for image upload. Please use better mobile data or Wi-Fi.';
+      return false;
+    }
+
+    // Optional speed thresholds for base64 image upload
+    if ((downlink > 0 && downlink < 1.0) || (rtt > 0 && rtt > 800)) {
+      this.lastImageUploadError =
+        'Internet speed is too low for image upload. Please try again on a stronger connection.';
+      return false;
+    }
+
+    // Allow Wi-Fi / ethernet / cellular when not clearly weak
+    if (['wifi', 'ethernet', 'cellular'].includes(type) || effectiveType === '3g' || effectiveType === '4g') {
+      return true;
+    }
+
+    return true;
+  }
+
   // (removed) canvas/image conversion helpers
 
   private replaceExtensionWithJpeg(fileName: string): string {
@@ -202,9 +258,14 @@ export class MarkPage implements OnInit {
   // (removed) image conversion + legacy `multipleimages` uploader
 
   private async uploadPendingImagesAllStepsForPanel(panelId: string | number): Promise<boolean> {
+
+    if (!this.isAllowedNetworkForMarkComplete()) {
+      this.presentToast(this.lastImageUploadError);
+      return false;
+    }
     this.lastImageUploadError = '';
     const queueKeys = this.getPendingQueueKeysForPanel(panelId);
-    if (!queueKeys.length) return true; // nothing to upload
+    if (!queueKeys.length) this.sendOTP(); // nothing to upload
 
     // Group by stepId so we can send steps[0][...] payload.
     const stepsMap = new Map<string, { stepId: string; items: any[] }>();
@@ -251,7 +312,6 @@ export class MarkPage implements OnInit {
         }
       }
 
-      // Backend validation is sensitive to missing/invalid lat/lng.
       if (
         !Number.isFinite(this.latitude) ||
         !Number.isFinite(this.longitude) ||
@@ -260,13 +320,6 @@ export class MarkPage implements OnInit {
       ) {
         this.lastImageUploadError = 'Location coordinates are missing/invalid. Enable GPS and try again.';
         await this.presentToast(this.lastImageUploadError);
-        this.storeDebugUploadLog({
-          panelId,
-          latitude: this.latitude,
-          longitude: this.longitude,
-          totalImages,
-          reason: 'missing_coordinates',
-        });
         return false;
       }
 
@@ -285,13 +338,7 @@ export class MarkPage implements OnInit {
         fileCount: Array.isArray(s.items) ? s.items.length : 0,
       }));
 
-      this.storeDebugUploadLog({
-        panelId,
-        latitude: this.latitude,
-        longitude: this.longitude,
-        stepsPreview,
-        totalImages,
-      });
+   
 
       let allOk = true;
       const appendedFilesByStep = new Array(stepList.length).fill(0);
@@ -365,19 +412,6 @@ export class MarkPage implements OnInit {
       if (appendedTotalFiles === 0) {
         const msg = `No image files were appended for upload (missing/invalid dataUrl). Skipped: ${skipped}.`;
         this.lastImageUploadError = msg;
-
-        console.log('multipleStepImages: EARLY RETURN (no files appended)', {
-          panelId,
-          latitude: this.latitude,
-          longitude: this.longitude,
-          stepList: stepList.map((s: any) => ({ stepId: s.stepId, requestedCount: Array.isArray(s.items) ? s.items.length : 0 })),
-          appendedTotalFiles,
-          appendedFilesByStep,
-          skipped,
-          totalImages,
-          allOk,
-        });
-
         if (loader) {
           try {
             await loader.dismiss();
@@ -388,18 +422,6 @@ export class MarkPage implements OnInit {
         await this.presentToast(msg);
         return false;
       }
-
-      console.log('multipleStepImages: SENDING REQUEST', {
-        panelId,
-        latitude: this.latitude,
-        longitude: this.longitude,
-        stepsPreview: stepsPreview,
-        totalImages,
-        appendedTotalFiles,
-        appendedFilesByStep,
-        skipped,
-        allOk,
-      });
 
       loader.message = `Uploading images...`;
       const data: any = await firstValueFrom(this.http.post(GlobalConstants.multipleStepImages, formData));
@@ -416,6 +438,7 @@ export class MarkPage implements OnInit {
         }
 
         for (const key of queueKeys) localStorage.removeItem(key);
+        void this.sendOTP()
         return true;
       }
 
@@ -455,25 +478,26 @@ export class MarkPage implements OnInit {
       }
 
       this.lastImageUploadError = `Image upload failed: HTTP ${status ?? 'unknown'}. ${errText}`;
-
-      this.storeDebugUploadLog({
-        panelId,
-        latitude: this.latitude,
-        longitude: this.longitude,
-        status,
-        errText,
-        errBody,
-      });
       return false;
     }
   }
-
+  async uploadgalleryImagesAllStepsForPanel(): Promise<boolean> {
+    const panelId = this.pennelinfo?.id;
+    if (panelId) {
+      const ok = await this.uploadPendingImagesAllStepsForPanel(panelId);
+      if (!ok) {
+        this.presentToast(this.lastImageUploadError || 'Image upload failed. Please try again.');
+        return false;
+      }
+    }
+  }
   async submitform(){
     let formData = new FormData();
     if(this.otp == null || this.otp == ''){
       this.presentToast('Please enter OTP')
       return false
     }
+   
 
     // Refresh coordinates briefly so watermark + server upload has correct lat/lng.
     try {
@@ -487,14 +511,7 @@ export class MarkPage implements OnInit {
       // Keep existing coordinates (or 0) if GPS is not available.
     }
 
-    const panelId = this.pennelinfo?.id;
-    if (panelId) {
-      const ok = await this.uploadPendingImagesAllStepsForPanel(panelId);
-      if (!ok) {
-        this.presentToast(this.lastImageUploadError || 'Image upload failed. Please try again.');
-        return false;
-      }
-    }
+   
 
     formData.append('phone' , this.pennelinfo.person_phone);
     formData.append('latitude' , this.latitude);

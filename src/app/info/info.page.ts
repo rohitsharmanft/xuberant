@@ -70,26 +70,29 @@ export class InfoPage implements OnInit {
     if(this.pennelinfo.status == 'S'){
       this.option = 'view'
     }
+    this.activatedRoute.queryParams.subscribe((params) => {
+      this.requestedStepId = params?.activeid;
+      if (this.data?.length) {
+        this.applyRequestedStepFromData();
+      }
+    });
     this.getcontent()
   }
   async ionViewWillEnter() { 
     if(this.sendstep != undefined) {
       this.getPagecontent(this.pennelinfo.id,this.sendstep)
     }
-    const resp = await this.geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 0
-    });
-
-    this.latitude = resp.coords.latitude;
-    this.longitude = resp.coords.longitude;
-    this.activatedRoute.queryParams.subscribe((params) => {
-      this.requestedStepId = params?.activeid;
-      //alert(this.requestedStepId);
-      this.activeStep = this.requestedStepId;
-      this.onClickPage(this.requestedStepId);
-    });
+    try {
+      const resp = await this.geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      });
+      this.latitude = resp.coords.latitude;
+      this.longitude = resp.coords.longitude;
+    } catch (error) {
+      console.log('Error getting location on info enter', error);
+    }
   }
   submitform(){
 
@@ -207,18 +210,7 @@ export class InfoPage implements OnInit {
           this.activeStep = (currentValue.permission).split(',')
         }
       });
-      if (this.requestedStepId != null && this.requestedStepId !== '') {
-        const requestedId = String(this.requestedStepId);
-        const requestedIndex = this.data.findIndex((step: any) => String(step?.step_id) === requestedId);
-        if (requestedIndex >= 0) {
-          this.activePage = requestedIndex + 1;
-          this.sendstep = this.data[requestedIndex].step_id;
-          this.activeStep = String(this.data[requestedIndex].permission ?? '')
-            .split(',')
-            .map((s: string) => s.trim())
-            .filter(Boolean);
-        }
-      }
+      this.applyRequestedStepFromData();
       /* No step marked in progress yet — still need a step id for API calls */
       if ((this.sendstep == null || this.sendstep === '') && this.data?.length) {
         this.sendstep = this.data[0].step_id;
@@ -241,6 +233,23 @@ export class InfoPage implements OnInit {
 			console.log(error);
 		});
    
+  }
+
+  private applyRequestedStepFromData(): void {
+    if (!this.data?.length || this.requestedStepId == null || this.requestedStepId === '') {
+      return;
+    }
+    const requestedId = String(this.requestedStepId);
+    const requestedIndex = this.data.findIndex((step: any) => String(step?.step_id) === requestedId);
+    if (requestedIndex < 0) {
+      return;
+    }
+    this.activePage = requestedIndex + 1;
+    this.sendstep = this.data[requestedIndex].step_id;
+    this.activeStep = String(this.data[requestedIndex].permission ?? '')
+      .split(',')
+      .map((s: string) => s.trim())
+      .filter(Boolean);
   }
 // Pagination code
   private  getPageCount(): number {  
