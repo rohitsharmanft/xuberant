@@ -15,6 +15,11 @@ export class GlobalConstants {
     public static sitestep: string = "https://app.xuberantsolutions.com/api/v1/sitestep/";
     public static getstepsite: string = "https://app.xuberantsolutions.com/api/v1/getstepsite/";
     public static foundation: string = "https://app.xuberantsolutions.com/api/v1/foundation";
+    public static searchCustomer: string = "https://app.xuberantsolutions.com/api/v1/searchcustomer";
+    public static installerStepTwo: string = "https://app.xuberantsolutions.com/api/v1/installersteptwo";
+    public static searchCivilAndItems: string = "https://app.xuberantsolutions.com/api/v1/searchCivilAndItems";
+    public static saveSite: string = "https://app.xuberantsolutions.com/api/v1/storesite";
+    public static assignProject: string = "https://app.xuberantsolutions.com/api/v1/assignproject";
     // public static searchlist: string = "https://app.xuberantsolutions.com/api/v1/search";
     //sitestep
       //api/v1/getstepsite/

@@ -6,7 +6,7 @@
  * used as an entry point to import other CSS/Sass files to be included in the
  * output CSS.
  * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
+ * https:
  */
 
 /* Core CSS required for Ionic components to work properly */
@@ -33,6 +33,41 @@
 .hearer-top-content,
 ion-app ion-router-outlet ion-content.info-page {
 	--padding-top: 20px !important;
+}
+
+ion-fab {
+  margin-bottom: env(safe-area-inset-bottom);
+}
+ion-datetime {
+  
+  
+  &::part(calendar-day today) {
+    color: #f37021 !important;
+    --color: #f37021 !important;
+    border: 1px solid #f37021 !important;
+    border-radius: 50%;
+  }
+
+  &::part(calendar-day today active),
+  &::part(calendar-day-today-active) {
+    color: #ffffff !important;
+    --color: #ffffff !important;
+    background: #f37021 !important;
+    --background: #f37021 !important;
+    
+
+  }
+  &::part(calendar-day active),
+  &::part(calendar-day-active) {
+    background: #f37021 !important;
+    --background: #f37021 !important;
+    color: #ffffff !important;
+    --color: #ffffff !important;
+    border-radius: 50%;
+    border: none !important;
+    box-shadow: none !important; 
+    outline: none !important;
+  }
 }
 .ion-next-button-content {
     position: fixed;
