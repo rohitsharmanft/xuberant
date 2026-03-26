@@ -61,7 +61,24 @@ constructor(
     const value = event.target.value;
     this.searchSubject.next(value);
   }
+// Inside your AddSitePage class
+get filteredInstallItems() {
+  const selectedType = Number(this.siteForm.type); // ID 1 = Roof Top, ID 2 = Pump
 
+  return this.installItems.filter(item => {
+    // If Roof Top (1) is selected, hide Pump (ID 1)
+    if (selectedType === 1 && item.id === 1) {
+      return false;
+    }
+
+    // If Pump (2) is selected, hide Inverter (ID 3)
+    if (selectedType === 2 && item.id === 3) {
+      return false;
+    }
+
+    return true; // Show everything else
+  });
+}
   fetchStepTwoData() {
  
   this.http.get(GlobalConstants.installerStepTwo).subscribe({
